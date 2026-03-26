@@ -103,7 +103,7 @@ function createCheckbox(label, value, isAll, container) {
     input.type = 'checkbox';
     input.className = 'member-checkbox-input';
     input.value = value;
-    input.id = `chk-${value}`;
+    input.id = `member-filter-${value}`;
     
     // Si 'todos' está seleccionado al inicio, lo marcamos
     if (value === 'todos' && selectedMembers.has('todos')) {
@@ -112,7 +112,7 @@ function createCheckbox(label, value, isAll, container) {
 
     const spanLabel = document.createElement('label');
     spanLabel.className = isAll ? 'member-label all-label' : 'member-label';
-    spanLabel.htmlFor = `chk-${value}`;
+    spanLabel.htmlFor = `member-filter-${value}`;
     spanLabel.innerText = label;
 
     // EVENTO: Manejar los clicks en los checkboxes
@@ -128,33 +128,27 @@ function handleMemberCheckboxChange(e) {
     const val = checkbox.value;
 
     if (val === 'todos') {
-        // Lógica de 'ALL':
-        // Si activas 'ALL', deseleccionamos todos los demás checkboxes
         if (checkbox.checked) {
-            document.querySelectorAll('.member-checkbox-input:not(#chk-todos)')
-                .forEach(chk => chk.checked = false);
+            // Desmarcar todos los demás visualmente
+            document.querySelectorAll('.member-checkbox-input').forEach(chk => {
+                if(chk.value !== 'todos') chk.checked = false;
+            });
             selectedMembers.clear();
             selectedMembers.add('todos');
-        } else {
-            // Si desactivas 'ALL' y no hay nada más marcado, lo forzamos.
-            // (Para que nunca esté vacío)
-            if (selectedMembers.size === 0) {
-                checkbox.checked = true;
-                selectedMembers.add('todos');
-            }
         }
     } else {
-        // Lógica de miembros individuales:
         if (checkbox.checked) {
-            // Si marcas a un miembro, quitamos el check de 'ALL'
-            document.getElementById('chk-todos').checked = false;
+            // Si marcas un miembro, quita el check de 'ALL'
+            const allBtn = document.getElementById('filter-member-todos'); // <--- USA ESTE ID
+            if(allBtn) allBtn.checked = false;
+            
             selectedMembers.delete('todos');
             selectedMembers.add(val);
         } else {
             selectedMembers.delete(val);
-            // Si desmarcas a todos los miembros, forzamos el check de 'ALL'
             if (selectedMembers.size === 0) {
-                document.getElementById('chk-todos').checked = true;
+                const allBtn = document.getElementById('filter-member-todos');
+                if(allBtn) allBtn.checked = true;
                 selectedMembers.add('todos');
             }
         }
