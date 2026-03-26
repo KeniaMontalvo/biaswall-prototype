@@ -320,16 +320,14 @@ body {
 /* PHOTOCARD */
 .photocard {
     aspect-ratio: 2/3;
-    background: var(--warm-white);
+    background: #e0e0e0;
     border-radius: 12px;
-    border: 1px solid var(--sand);
+    border: 3px solid transparent;
     position: relative;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.3s ease;
     
     /* BLOQUEO DE GESTOS NATIVOS */
     -webkit-touch-callout: none; /* Bloquea el menú nativo en iOS */
@@ -341,6 +339,55 @@ body {
     -ms-user-select: none;
     user-select: none;            /* Bloquea la selección estándar */
     touch-action: manipulation;   /* Evita zooms accidentales al tocar rápido */
+}
+
+.pc-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Llenar la card sin deformarse */
+    display: block;
+    background-color: #f0f0f0;
+}
+
+/* Estilo para la imagen dentro de la card */
+.pc-image-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pc-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Para que la photocard llene todo el espacio sin deformarse */
+    display: block;
+}
+
+/* Estado 0: NO HAVE (Gris opacado) */
+.photocard.status-0 {
+    filter: grayscale(100%) opacity(0.4);
+    background-color: #ccc;
+}
+
+/* Estado 1: HAVE (Borde verde) */
+.photocard.status-1 {
+    filter: none;
+    border-color: #4CAF50; /* Verde */
+    box-shadow: 0 0 10px rgba(74, 175, 80, 0.2);
+}
+
+/* Estado 2: ON THE WAY (Borde amarillo/ámbar) */
+.photocard.status-2 {
+    filter: none;
+    border-color: #FFC107; /* Amarillo */
+}
+
+/* Estado 3: DON'T COLLECT (Rojo y muy transparente) */
+.photocard.status-3 {
+    filter: grayscale(100%) opacity(0.3);
+    border-color: #F44336; /* Rojo */
 }
 
 .photocard.not-owned { 
@@ -364,10 +411,16 @@ body {
 }
 
 .pc-name { 
-    font-size: 9px; 
-    position: absolute; 
-    bottom: 8px; 
-    color: #8F867E; 
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+    color: white;
+    font-size: 10px;
+    text-align: center;
+    padding: 4px 0;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 .app-content {
@@ -400,25 +453,47 @@ body {
 }
 
 .footer-legend {
-    position: sticky; /* Se queda pegada al fondo del contenedor */
-    bottom: 0;
-    width: 100%;
-    background: rgba(250, 248, 243, 0.9); /* --cream con transparencia */
-    backdrop-filter: blur(5px); /* Efecto de vidrio esmerilado */
-    border-top: 1px solid var(--sand);
-    padding: 12px 0;
-    text-align: center;
-    z-index: 10;
+    position: fixed;
+    bottom: 70px; /* Se apoya justo encima de la bottom-nav (que suele medir 60-70px) */
+    left: 50%;
+    transform: translateX(-50%); /* Centrado perfecto */
+    
+    width: 90%; /* Deja un pequeño margen a los lados para que no toque los bordes */
+    max-width: 400px; /* Se ajusta al ancho máximo de tu app */
+    
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    
+    background: rgba(255, 255, 255, 0.95); /* Blanco con ligera transparencia */
+    backdrop-filter: blur(10px); /* Efecto cristalino moderno */
+    padding: 12px 5px;
+    border-radius: 15px; /* Bordes redondeados para que parezca una "isla" */
+    
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05); /* Sombra muy sutil */
+    border: 1px solid #eee;
+    z-index: 99;
 }
 
-.footer-legend p {
-    margin: 0;
-    font-size: 11px;
-    color: var(--taupe);
-    font-family: var(--font-body);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #888;
 }
+
+.dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.dot.status-0 { background: #d1d1d1; }
+.dot.status-1 { background: #4CAF50; }
+.dot.status-2 { background: #FFC107; }
+.dot.status-3 { background: #F44336; }
 
 /* VISTA ESTADÍSTICAS */
 /* Manejo de Vistas */

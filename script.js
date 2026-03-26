@@ -1,69 +1,72 @@
 const groupsData = {
     bts: [
-        { name: "BUTTER ERA", year: "2021", members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"] },
-        { name: "LOVE YOURSELF 轉 'TEAR'", year: "2018", members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"] }
+        { 
+            name: "ARIRANG", 
+            year: "2024", 
+            members: [
+                { id: "rm_album", name: "RM", type: "album", img: "assets/bts/arirang/rm_album.jpg" },
+                { id: "jin_album", name: "Jin", type: "album", img: "assets/bts/arirang/jin_album.jpg" },
+                { id: "jimin_pob", name: "Jimin", type: "pob", img: "assets/bts/arirang/jimin_pob.jpg" },
+            ]
+        }
     ],
     twice: [
-        { name: "READY TO BE", year: "2023", members: ["Nayeon", "Jeongyeon", "Momo", "Sana", "Jihyo", "Mina", "Dahyun", "Chaeyoung", "Tzuyu"] },
-        { name: "FORMULA OF LOVE", year: "2021", members: ["Nayeon", "Jeongyeon", "Momo", "Sana", "Jihyo", "Mina", "Dahyun", "Chaeyoung", "Tzuyu"] }
+        { 
+            name: "READY TO BE", 
+            year: "2023", 
+            members: [
+                { id: "nayeon_rtb", name: "Nayeon", type: "album", img: "assets/twice/rtb/nayeon.jpg" },
+                { id: "momo_rtb", name: "Momo", type: "album", img: "assets/twice/rtb/momo.jpg" }
+                // Agregaremos el resto después
+            ] 
+        }
     ]
 };
 
 // Variable global para saber qué artista estamos viendo
 let currentArtist = 'bts';
+let userProgress = {}; // { "id_de_la_pc": estado_0_al_3 }
+let selectedMember = 'todos';
+let quantityFilter = 'todos';
 
 // Función que se ejecuta al seleccionar un artista inicial
 function selectInitialArtist(artistId) {
     currentArtist = artistId;
-    
-    // Ocultar lista de artistas y mostrar la app
     document.getElementById('view-onboarding').style.display = 'none';
-    document.getElementById('main-app').style.display = 'flex'; // Usamos el ID nuevo
+    document.getElementById('main-app').style.display = 'flex';
     
     const headerName = document.getElementById('header-artist-name');
-    if (headerName) {
-        headerName.innerText = artistId.toUpperCase();
-    }
-    
+    if (headerName) headerName.innerText = artistId.toUpperCase();
+
     updateMemberDropdown();
     renderCollection();
-
     switchView('coleccion');
 }
 
 function goToOnboarding() {
-    // Regresar a la nada... ¡ahora corregido!
     document.getElementById('main-app').style.display = 'none';
     document.getElementById('view-onboarding').style.display = 'flex';
 }
-
-// Estado de la colección: { "EraName_Member": cantidad }
-let userProgress = {};
-
-// Variables de estado de filtros
-let selectedMember = 'todos';
-let quantityFilter = 'todos'; // 'todos', '1' (solo obtenidas), '2+' (repetidas)
 
 // Esta función llena el selector dependiendo del grupo (BTS o Twice)
 function updateMemberDropdown() {
     const select = document.getElementById('member-filter');
     if (!select) return;
 
-    // 1. Limpiamos el menú y dejamos la opción por defecto
     select.innerHTML = '<option value="todos">Todo el grupo</option>';
 
-    // 2. Obtenemos los miembros de la primera era del artista seleccionado
     const members = groupsData[currentArtist][0].members; 
     
-    // 3. Creamos una opción por cada miembro
-    members.forEach(member => {
+    // Usamos Set para que si un miembro tiene 5 cards, el nombre solo salga 1 vez
+    const uniqueNames = [...new Set(members.map(m => m.name))];
+
+    uniqueNames.forEach(name => {
         const option = document.createElement('option');
-        option.value = member;
-        option.innerText = member;
+        option.value = name; // Guardamos el String "RM"
+        option.innerText = name;
         select.appendChild(option);
     });
     
-    // 4. Resetear el valor visual del select a "todos" al cambiar de grupo
     select.value = 'todos';
     selectedMember = 'todos';
 }
@@ -76,6 +79,7 @@ function setQuantityFilter(type, btn) {
     renderCollection();
 }
 
+// FUNCIONES DE NAVEGACIÓN Y FILTROS
 function applyFilters() {
     selectedMember = document.getElementById('member-filter').value;
     renderCollection();
@@ -88,21 +92,25 @@ function renderCollection() {
     const selectedData = groupsData[currentArtist] || [];
 
     selectedData.forEach(era => {
-        // --- 1. FILTRADO DE MIEMBROS ---
-        // Aquí decidimos qué miembros mostrar según el selector de Bias
-        const membersToDisplay = era.members.filter(member => {
-            const isAllMembers = selectedMember === 'todos';
-            const isSpecificBias = selectedMember === member;
-            return isAllMembers || isSpecificBias;
+        // 1. FILTRADO
+        const membersToDisplay = era.members.filter(m => {
+            const matchesMember = (selectedMember === 'todos' || selectedMember === m.name);
+            const status = userProgress[m.id] || 0;
+            
+            let matchesQuantity = true;
+            if (quantityFilter === '1') matchesQuantity = status === 1; // Obtenidas
+            if (quantityFilter === '2+') matchesQuantity = status === 2; // En camino
+            
+            return matchesMember && matchesQuantity;
         });
 
-        // Si después de filtrar no hay nadie que mostrar en esta era, saltamos a la siguiente
         if (membersToDisplay.length === 0) return;
 
         const section = document.createElement('div');
         section.className = 'era-section';
         
-        let ownedInEra = era.members.filter(m => userProgress[`${era.name}_${m}`] > 0).length;
+        // Conteo de la era
+        let ownedInEra = era.members.filter(m => (userProgress[m.id] || 0) === 1).length;
 
         section.innerHTML = `
             <div class="era-title">
@@ -113,33 +121,34 @@ function renderCollection() {
 
         const pcGrid = section.querySelector('.pc-grid');
 
-        // --- 2. DIBUJAR SOLO LOS FILTRADOS ---
         membersToDisplay.forEach(member => {
-            const key = `${era.name}_${member}`;
-            const count = userProgress[key] || 0;
+            const status = userProgress[member.id] || 0;
             const pc = document.createElement('div');
-            pc.className = `photocard ${count > 0 ? 'owned' : 'not-owned'}`;
+            
+            // Aplicamos la clase de estado (status-0, status-1, etc)
+            pc.className = `photocard status-${status}`;
+
+            pc.style.backgroundColor = status === 0 ? '#f0f0f0' : '#ffffff';
             
             pc.innerHTML = `
-                ${count > 1 ? `<div class="reps-badge">${count}</div>` : ''}
-                <div class="pc-initial">${member[0]}</div>
-                <div class="pc-name">${member}</div>
-            `;
+            <img src="${member.img}" 
+                class="pc-image" 
+                alt="${member.name}" 
+                onerror="this.onerror=null; this.src='https://placehold.co/200x300?text=${member.name}';">
+        `;
 
-            // EVENTOS (Tus eventos originales)
+            // EVENTOS
             let timer;
             let isLongPress = false;
 
             const startPress = () => {
                 isLongPress = false; 
                 timer = setTimeout(() => {
-                    resetCard(key);
+                    resetCard(member.id);
                     isLongPress = true;
                     if (navigator.vibrate) navigator.vibrate(50);
                 }, 800);
             };
-
-            const cancelPress = () => clearTimeout(timer);
 
             const handleRelease = (e) => {
                 clearTimeout(timer);
@@ -147,18 +156,17 @@ function renderCollection() {
                     setTimeout(() => { isLongPress = false; }, 100);
                     return; 
                 }
-                handleTap(key, e);
+                handleTap(member.id);
             };
 
             pc.addEventListener('mousedown', startPress);
             pc.addEventListener('mouseup', handleRelease);
-            pc.addEventListener('mouseleave', cancelPress);
-            pc.addEventListener('touchstart', (e) => startPress(), { passive: true });
+            pc.addEventListener('mouseleave', () => clearTimeout(timer));
+            pc.addEventListener('touchstart', startPress, { passive: true });
             pc.addEventListener('touchend', (e) => {
                 handleRelease(e);
                 if (isLongPress) e.preventDefault(); 
             });
-            pc.addEventListener('touchcancel', cancelPress);
 
             pcGrid.appendChild(pc);
         });
@@ -167,35 +175,17 @@ function renderCollection() {
     });
 }
 
-function handleTap(key, event) {
-    // Si presionas ALT en PC mientras haces click, resetea la carta
-    if (event && event.altKey) {
-        resetCard(key);
-        return; // Salimos de la función para que no sume una unidad
-    }
-
-    // Lógica normal de suma
-    if (!userProgress[key]) {
-        userProgress[key] = 1; 
-    } else {
-        userProgress[key] += 1;
-    }
+function handleTap(id) {
+    let currentStatus = userProgress[id] || 0;
+    // Ciclo: 0 (No tengo) -> 1 (HAVE) -> 2 (WAY) -> 3 (NO COLL)
+    userProgress[id] = (currentStatus + 1) % 4; 
     renderCollection();
 }
 
-function resetCard(key) {
-    if (userProgress[key] > 1) {
-        // Si tienes más de una, solo restamos una
-        userProgress[key] -= 1;
-    } else {
-        // Si solo tenías una, la eliminamos por completo
-        delete userProgress[key];
-    }
+function resetCard(id) {
+    userProgress[id] = 0; // Resetear a estado "No tengo"
     renderCollection();
 }
-
-// Carga inicial
-renderCollection();
 
 //Estadísticas
 
@@ -220,24 +210,26 @@ navButtons.forEach(btn => {
 
 // 2. Función para calcular estadísticas
 function updateStats() {
-    const totalPossible = btsData.length * 7; // 2 eras x 7 miembros
+    const selectedData = groupsData[currentArtist] || [];
+    let totalPossible = 0;
     let totalOwned = 0;
-    let totalReps = 0;
+    let totalOnTheWay = 0;
 
     const eraListContainer = document.getElementById('era-stats-list');
     eraListContainer.innerHTML = '';
 
-    btsData.forEach(era => {
+    selectedData.forEach(era => {
+        totalPossible += era.members.length;
         let ownedInEra = 0;
+
         era.members.forEach(m => {
-            const count = userProgress[`${era.name}_${m}`] || 0;
-            if (count > 0) ownedInEra++;
-            if (count > 1) totalReps += (count - 1);
+            const status = userProgress[m.id] || 0;
+            if (status === 1) ownedInEra++; // HAVE
+            if (status === 2) totalOnTheWay++; // WAY
         });
         totalOwned += ownedInEra;
 
-        // Crear barra por era
-        const percent = Math.round((ownedInEra / era.members.length) * 100);
+        const percent = Math.round((ownedInEra / era.members.length) * 100) || 0;
         eraListContainer.innerHTML += `
             <div class="era-stat-row">
                 <div class="era-stat-info">
@@ -249,41 +241,30 @@ function updateStats() {
         `;
     });
 
-    // Actualizar números generales
-    const totalPercent = Math.round((totalOwned / totalPossible) * 100);
+    const totalPercent = Math.round((totalOwned / totalPossible) * 100) || 0;
     document.getElementById('stat-obtained').innerText = totalOwned;
     document.getElementById('stat-missing').innerText = totalPossible - totalOwned;
-    document.getElementById('stat-reps').innerText = totalReps;
+    document.getElementById('stat-reps').innerText = totalOnTheWay; // Ahora mostramos "En camino" aquí
     document.getElementById('total-percent-text').innerText = `${totalPercent}% completado`;
     document.getElementById('total-progress-fill').style.width = `${totalPercent}%`;
-    document.getElementById('stat-wishlist-percent').innerText = `${totalPercent}%`;
 }
 
 function switchView(viewId) {
-    // 1. Ocultar todas las vistas
     document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-    
-    // 2. Mostrar la vista seleccionada
     document.getElementById('view-' + viewId).style.display = 'block';
-
-    // 3. Manejar la visibilidad de la leyenda (Footer)
-    const footer = document.querySelector('.footer-legend');
-    if (viewId === 'coleccion') {
-        footer.style.display = 'block';
-    } else {
-        footer.style.display = 'none';
-    }
-
-    // 4. Actualizar estado activo en la barra inferior
+    
+    // Actualizar nav bar
     document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-    // Buscamos el botón que tiene el onclick con el viewId correspondiente
     const activeBtn = document.querySelector(`.nav-item[onclick="switchView('${viewId}')"]`);
     if (activeBtn) activeBtn.classList.add('active');
+
+    if(viewId === 'view-stats') updateStats();
 }
 
-// Bloquea el menú contextual en las photocards para que no estorbe el reset
-document.addEventListener('contextmenu', function(e) {
-    if (e.target.closest('.photocard')) {
-        e.preventDefault();
-    }
+// Bloqueo de menú contextual
+document.addEventListener('contextmenu', e => {
+    if (e.target.closest('.photocard')) e.preventDefault();
 }, false);
+
+// Render inicial
+renderCollection();
