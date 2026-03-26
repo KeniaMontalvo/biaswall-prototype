@@ -367,27 +367,27 @@ body {
 
 /* Estado 0: NO HAVE (Gris opacado) */
 .photocard.status-0 {
-    filter: grayscale(100%) opacity(0.4);
-    background-color: #ccc;
+    border: 1px solid #eee;
+    filter: grayscale(100%) opacity(0.5);
 }
 
 /* Estado 1: HAVE (Borde verde) */
 .photocard.status-1 {
+    border: 3px solid #4CAF50 !important;
     filter: none;
-    border-color: #4CAF50; /* Verde */
-    box-shadow: 0 0 10px rgba(74, 175, 80, 0.2);
 }
 
 /* Estado 2: ON THE WAY (Borde amarillo/ámbar) */
 .photocard.status-2 {
+    border: 3px solid #FFC107;
     filter: none;
-    border-color: #FFC107; /* Amarillo */
 }
 
 /* Estado 3: DON'T COLLECT (Rojo y muy transparente) */
 .photocard.status-3 {
-    filter: grayscale(100%) opacity(0.3);
-    border-color: #F44336; /* Rojo */
+    border: 3px solid #F44336;
+    background-color: #fff;
+    filter: none;
 }
 
 .photocard.not-owned { 

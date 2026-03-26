@@ -175,11 +175,23 @@ function renderCollection() {
     });
 }
 
-function handleTap(id) {
-    let currentStatus = userProgress[id] || 0;
-    // Ciclo: 0 (No tengo) -> 1 (HAVE) -> 2 (WAY) -> 3 (NO COLL)
-    userProgress[id] = (currentStatus + 1) % 4; 
+function handleTap(memberId) {
+    // Obtenemos el estado actual o 0 si no existe
+    let currentStatus = userProgress[memberId] || 0;
+    
+    // Ciclo de 4 estados: 
+    // 0 (No) -> 1 (Have/Verde) -> 2 (Way/Amarillo) -> 3 (Drop/Rojo) -> vuelve a 0
+    let nextStatus = (currentStatus + 1) % 4;
+    
+    // Guardamos el progreso
+    userProgress[memberId] = nextStatus;
+    
+    // Guardar en LocalStorage para no perder cambios al recargar
+    localStorage.setItem('userProgress', JSON.stringify(userProgress));
+    
+    // Refrescamos la UI
     renderCollection();
+    if (typeof updateStats === "function") updateStats();
 }
 
 function resetCard(id) {
