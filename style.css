@@ -404,7 +404,8 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;            /* Bloquea la selección estándar */
-    touch-action: manipulation;   /* Evita zooms accidentales al tocar rápido */
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .pc-image {

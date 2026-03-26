@@ -238,6 +238,7 @@ function renderCollection() {
 
                 const handleRelease = (e) => {
                     clearTimeout(timer);
+                    if (e.cancelable) e.preventDefault();
                     if (isLongPress) {
                         setTimeout(() => { isLongPress = false; }, 100);
                         return; 
@@ -245,14 +246,18 @@ function renderCollection() {
                     handleTap(member.id);
                 };
 
-                pc.addEventListener('mousedown', startPress);
-                pc.addEventListener('mouseup', handleRelease);
-                pc.addEventListener('mouseleave', () => clearTimeout(timer));
-                pc.addEventListener('touchstart', startPress, { passive: true });
-                pc.addEventListener('touchend', (e) => {
-                    handleRelease(e);
-                    if (isLongPress) e.preventDefault(); 
+                pc.addEventListener('mousedown', (e) => {
+                // Si es un mouse real (no un toque emulado), ejecutamos
+                if (e.detail > 0) startPress(e);
+            });
+                pc.addEventListener('mouseup', (e) => {
+                    if (e.detail > 0) handleRelease(e);
                 });
+
+                pc.addEventListener('mouseleave', () => clearTimeout(timer));
+
+                pc.addEventListener('touchstart', startPress, { passive: false });
+                pc.addEventListener('touchend', handleRelease, { passive: false });
 
                 pcGrid.appendChild(pc);
             });
