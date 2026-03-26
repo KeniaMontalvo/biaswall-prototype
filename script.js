@@ -24,7 +24,8 @@ function selectInitialArtist(artistId) {
     if (headerName) {
         headerName.innerText = artistId.toUpperCase();
     }
-
+    
+    updateMemberDropdown();
     renderCollection();
 
     switchView('coleccion');
@@ -39,18 +40,68 @@ function goToOnboarding() {
 // Estado de la colección: { "EraName_Member": cantidad }
 let userProgress = {};
 
+// Variables de estado de filtros
+let selectedMember = 'todos';
+let quantityFilter = 'todos'; // 'todos', '1' (solo obtenidas), '2+' (repetidas)
+
+// Esta función llena el selector dependiendo del grupo (BTS o Twice)
+function updateMemberDropdown() {
+    const select = document.getElementById('member-filter');
+    if (!select) return;
+
+    // 1. Limpiamos el menú y dejamos la opción por defecto
+    select.innerHTML = '<option value="todos">Todo el grupo</option>';
+
+    // 2. Obtenemos los miembros de la primera era del artista seleccionado
+    const members = groupsData[currentArtist][0].members; 
+    
+    // 3. Creamos una opción por cada miembro
+    members.forEach(member => {
+        const option = document.createElement('option');
+        option.value = member;
+        option.innerText = member;
+        select.appendChild(option);
+    });
+    
+    // 4. Resetear el valor visual del select a "todos" al cambiar de grupo
+    select.value = 'todos';
+    selectedMember = 'todos';
+}
+
+function setQuantityFilter(type, btn) {
+    quantityFilter = type;
+    // Manejo visual de botones activos
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCollection();
+}
+
+function applyFilters() {
+    selectedMember = document.getElementById('member-filter').value;
+    renderCollection();
+}
+
 function renderCollection() {
     const grid = document.getElementById('collection-grid');
     grid.innerHTML = '';
     
-    // Usamos el artista seleccionado actualmente
     const selectedData = groupsData[currentArtist] || [];
 
     selectedData.forEach(era => {
+        // --- 1. FILTRADO DE MIEMBROS ---
+        // Aquí decidimos qué miembros mostrar según el selector de Bias
+        const membersToDisplay = era.members.filter(member => {
+            const isAllMembers = selectedMember === 'todos';
+            const isSpecificBias = selectedMember === member;
+            return isAllMembers || isSpecificBias;
+        });
+
+        // Si después de filtrar no hay nadie que mostrar en esta era, saltamos a la siguiente
+        if (membersToDisplay.length === 0) return;
+
         const section = document.createElement('div');
         section.className = 'era-section';
         
-        // Calcular progreso de la era
         let ownedInEra = era.members.filter(m => userProgress[`${era.name}_${m}`] > 0).length;
 
         section.innerHTML = `
@@ -62,7 +113,8 @@ function renderCollection() {
 
         const pcGrid = section.querySelector('.pc-grid');
 
-        era.members.forEach(member => {
+        // --- 2. DIBUJAR SOLO LOS FILTRADOS ---
+        membersToDisplay.forEach(member => {
             const key = `${era.name}_${member}`;
             const count = userProgress[key] || 0;
             const pc = document.createElement('div');
@@ -74,7 +126,7 @@ function renderCollection() {
                 <div class="pc-name">${member}</div>
             `;
 
-            // EVENTOS
+            // EVENTOS (Tus eventos originales)
             let timer;
             let isLongPress = false;
 
@@ -82,44 +134,30 @@ function renderCollection() {
                 isLongPress = false; 
                 timer = setTimeout(() => {
                     resetCard(key);
-                    isLongPress = true; // Activamos el escudo
+                    isLongPress = true;
                     if (navigator.vibrate) navigator.vibrate(50);
                 }, 800);
             };
 
-            const cancelPress = () => {
-                clearTimeout(timer);
-            };
+            const cancelPress = () => clearTimeout(timer);
 
             const handleRelease = (e) => {
                 clearTimeout(timer);
-                
                 if (isLongPress) {
-                    // En lugar de false inmediato, esperamos 100ms
-                    // Esto bloquea cualquier evento "click" que venga de camino
                     setTimeout(() => { isLongPress = false; }, 100);
                     return; 
                 }
-                
                 handleTap(key, e);
             };
 
-            // Listeners para Laptop (PC)
             pc.addEventListener('mousedown', startPress);
             pc.addEventListener('mouseup', handleRelease);
             pc.addEventListener('mouseleave', cancelPress);
-
-            // Listeners para Móvil
-            pc.addEventListener('touchstart', (e) => {
-                startPress();
-            }, { passive: true });
-
+            pc.addEventListener('touchstart', (e) => startPress(), { passive: true });
             pc.addEventListener('touchend', (e) => {
                 handleRelease(e);
-                // Evita que el navegador emule un click de mouse tras el touch
                 if (isLongPress) e.preventDefault(); 
             });
-
             pc.addEventListener('touchcancel', cancelPress);
 
             pcGrid.appendChild(pc);

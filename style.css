@@ -262,23 +262,31 @@ body {
     border-color: var(--text-main); 
 }
 
-.priority-selector {
-    display: flex;
-    margin: 0 15px 20px;
-    border: 1px solid var(--border-color);
+.filter-select {
+    background: var(--warm-white);
+    border: 1px solid var(--sand);
     border-radius: 8px;
-    overflow: hidden;
-}
-
-.priority-btn {
+    padding: 6px 10px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--deep-brown);
+    outline: none;
     flex: 1;
-    padding: 8px;
-    border: none;
-    background: white;
-    font-size: 13px;
 }
 
-.priority-btn.active { background: #F0EBE3; font-weight: 600; }
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.filter-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--taupe);
+    text-transform: uppercase;
+}
 
 /* GRID DE COLECCIÓN */
 .era-section { 

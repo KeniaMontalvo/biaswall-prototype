@@ -55,16 +55,20 @@
         
         <!-- COLECCIÓN -->
         <section id="view-coleccion" class="view">
+            <div class="filter-section">
+                <div class="filter-row">
+                    <select id="member-filter" class="filter-select" onchange="applyFilters()">
+                    <option value="todos">Todo el grupo</option>
+                    </select>
+                </div>
+
                 <div class="filter-tabs">
-                    <button class="filter-btn active">Todo</button>
-                    <button class="filter-btn">Album</button>
-                    <button class="filter-btn">POB</button>
-                    <button class="filter-btn">Lucky Draw</button>
+                    <button class="filter-btn active" onclick="setQuantityFilter('todos', this)">Todos</button>
+                    <button class="filter-btn" onclick="setQuantityFilter('1', this)">Obtenidas</button>
+                    <button class="filter-btn" onclick="setQuantityFilter('2+', this)">Repetidas</button>
                 </div>
-                <div class="priority-selector">
-                    <button class="priority-btn active">OT7</button>
-                    <button class="priority-btn">Bias</button>
-                </div>
+            </div>
+
                 <div id="collection-grid" class="collection-grid"></div>
         </section>
 
