@@ -2,7 +2,7 @@ const groupsData = {
     bts: [
         {
             album: "ARIRANG",
-            year: "2024",
+            year: "2026",
             versions: [
                 {
                     subname: "Rooted in Korea",
@@ -50,6 +50,7 @@ let currentArtist = 'bts';
 let userProgress = {}; // { "id_de_la_pc": estado_0_al_3 }
 let selectedMember = 'todos';
 let quantityFilter = 'todos';
+let selectedMembers = new Set(['todos']);
 
 // Función que se ejecuta al seleccionar un artista inicial
 function selectInitialArtist(artistId) {
@@ -60,7 +61,7 @@ function selectInitialArtist(artistId) {
     const headerName = document.getElementById('header-artist-name');
     if (headerName) headerName.innerText = artistId.toUpperCase();
 
-    updateMemberDropdown();
+    updateMemberFilters();
     renderCollection();
     switchView('coleccion');
 }
@@ -71,26 +72,96 @@ function goToOnboarding() {
 }
 
 // Esta función llena el selector dependiendo del grupo (BTS o Twice)
-function updateMemberDropdown() {
-    const select = document.getElementById('member-filter');
-    if (!select) return;
+function updateMemberFilters() {
+    const panel = document.getElementById('member-checkbox-panel');
+    if (!panel) return;
+    panel.innerHTML = ''; // Limpiamos el panel
 
-    select.innerHTML = '<option value="todos">Todo el grupo</option>';
-
-    const members = groupsData[currentArtist][0].members; 
+    // 1. OBTENER MIEMBROS (Aquí arreglamos el acceso a datos)
+    // Buscamos el primer álbum y su primera versión para sacar los 7 nombres únicos de BTS
+    const albumData = groupsData[currentArtist]?.[0];
+    if (!albumData || !albumData.versions[0]) return;
     
-    // Usamos Set para que si un miembro tiene 5 cards, el nombre solo salga 1 vez
-    const uniqueNames = [...new Set(members.map(m => m.name))];
+    // Obtenemos una lista de solo los nombres (RM, Jin, Suga...)
+    const memberNames = albumData.versions[0].members.map(m => m.name);
 
-    uniqueNames.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name; // Guardamos el String "RM"
-        option.innerText = name;
-        select.appendChild(option);
+    // 2. CREAR EL CHECKBOX DE 'ALL'
+    createCheckbox('ALL', 'todos', true, panel);
+
+    // 3. CREAR LOS CHECKBOXES DE CADA MIEMBRO
+    memberNames.forEach(name => {
+        createCheckbox(name, name, false, panel);
     });
+}
+
+// Función auxiliar para crear cada checkbox de forma limpia
+function createCheckbox(label, value, isAll, container) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'member-checkbox-wrapper';
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.className = 'member-checkbox-input';
+    input.value = value;
+    input.id = `chk-${value}`;
     
-    select.value = 'todos';
-    selectedMember = 'todos';
+    // Si 'todos' está seleccionado al inicio, lo marcamos
+    if (value === 'todos' && selectedMembers.has('todos')) {
+        input.checked = true;
+    }
+
+    const spanLabel = document.createElement('label');
+    spanLabel.className = isAll ? 'member-label all-label' : 'member-label';
+    spanLabel.htmlFor = `chk-${value}`;
+    spanLabel.innerText = label;
+
+    // EVENTO: Manejar los clicks en los checkboxes
+    input.addEventListener('change', handleMemberCheckboxChange);
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(spanLabel);
+    container.appendChild(wrapper);
+}
+
+function handleMemberCheckboxChange(e) {
+    const checkbox = e.target;
+    const val = checkbox.value;
+
+    if (val === 'todos') {
+        // Lógica de 'ALL':
+        // Si activas 'ALL', deseleccionamos todos los demás checkboxes
+        if (checkbox.checked) {
+            document.querySelectorAll('.member-checkbox-input:not(#chk-todos)')
+                .forEach(chk => chk.checked = false);
+            selectedMembers.clear();
+            selectedMembers.add('todos');
+        } else {
+            // Si desactivas 'ALL' y no hay nada más marcado, lo forzamos.
+            // (Para que nunca esté vacío)
+            if (selectedMembers.size === 0) {
+                checkbox.checked = true;
+                selectedMembers.add('todos');
+            }
+        }
+    } else {
+        // Lógica de miembros individuales:
+        if (checkbox.checked) {
+            // Si marcas a un miembro, quitamos el check de 'ALL'
+            document.getElementById('chk-todos').checked = false;
+            selectedMembers.delete('todos');
+            selectedMembers.add(val);
+        } else {
+            selectedMembers.delete(val);
+            // Si desmarcas a todos los miembros, forzamos el check de 'ALL'
+            if (selectedMembers.size === 0) {
+                document.getElementById('chk-todos').checked = true;
+                selectedMembers.add('todos');
+            }
+        }
+    }
+
+    // Finalmente, renderizamos la colección con los nuevos filtros.
+    renderCollection();
 }
 
 function setQuantityFilter(type, btn) {
@@ -139,9 +210,10 @@ function renderCollection() {
                 const status = userProgress[member.id] || 0;
 
                 // Aplicar filtros (Miembro y Estado)
-                const matchesMember = (selectedMember === 'todos' || selectedMember === member.name);
+                const matchesMember = selectedMembers.has('todos') || selectedMembers.has(member.name);
                 let matchesQuantity = true;
                 if (quantityFilter === '1') matchesQuantity = status === 1;
+                if (quantityFilter === '2') matchesQuantity = status === 2;
                 if (quantityFilter === '4') matchesQuantity = status === 4;
 
                 if (!matchesMember || !matchesQuantity) return;

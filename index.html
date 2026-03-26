@@ -57,15 +57,15 @@
         <section id="view-coleccion" class="view">
             <div class="filter-section">
                 <div class="filter-row">
-                    <select id="member-filter" class="filter-select" onchange="applyFilters()">
-                    <option value="todos">Todo el grupo</option>
-                    </select>
+                    <div class="member-filter-panel" id="member-checkbox-panel">
+                    </div>
                 </div>
 
                 <div class="filter-tabs">
-                    <button class="filter-btn active" onclick="setQuantityFilter('todos', this)">Todos</button>
-                    <button class="filter-btn" onclick="setQuantityFilter('1', this)">Obtenidas</button>
-                    <button class="filter-btn" onclick="setQuantityFilter('2+', this)">Repetidas</button>
+                    <button class="filter-btn active" onclick="setQuantityFilter('todos', this)">All</button>
+                    <button class="filter-btn" onclick="setQuantityFilter('1', this)">Have</button>
+                    <button class="filter-btn" onclick="setQuantityFilter('2', this)">On the Way</button>
+                    <button class="filter-btn" onclick="setQuantityFilter('4', this)">Trade</button>
                 </div>
             </div>
 
