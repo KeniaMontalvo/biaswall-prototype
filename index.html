@@ -9,11 +9,14 @@
 </head>
 <body>
     <div class="app-container">
+
+        <!-- HEADER -->
         <header class="header">
             <h1 class="logo">Bias<span class="logo-accent">Wall</span></h1>
             <span class="badge-artist">BTS</span>
         </header>
 
+        <!-- NAVIGATION -->
         <nav class="top-nav">
             <button class="nav-btn active" onclick="switchView('coleccion')">Colección</button>
             <button class="nav-btn" onclick="switchView('stats')">Stats</button>
@@ -21,8 +24,10 @@
             <button class="nav-btn" onclick="switchView('ajustes')">Ajustes</button>
         </nav>
 
+        <!-- MAIN CONTENT -->
         <main class="app-content">
-            
+        
+        <!-- COLECCIÓN -->
         <section id="view-coleccion" class="view">
                 <div class="filter-tabs">
                     <button class="filter-btn active">Todo</button>
@@ -37,6 +42,7 @@
                 <div id="collection-grid" class="collection-grid"></div>
         </section>
 
+        <!-- STATS -->
         <section id="view-stats" class="view" style="display: none;">
                 <div class="stats-header">
                     <h2 class="view-title">Tu colección</h2>
@@ -78,6 +84,7 @@
                 </div>
         </section>
 
+        <!-- INTERCAMBIO -->
         <section id="view-intercambio" class="view" style="display: none;">
                 <div class="stats-header">
                     <h2 class="view-title">Código de Intercambio</h2>
@@ -85,6 +92,7 @@
                 </div>
         </section>
 
+        <!-- AJUSTES -->
         <section id="view-ajustes" class="view" style="display: none;">
         <div class="settings-group">
             <h3 class="settings-label">MI CUENTA</h3>
@@ -141,11 +149,13 @@
 
         </main>
 
+        <!-- FOOTER LEGEND -->
         <footer class="footer-legend">
             <p>Tap = obtener · Tap otra vez = repetida · Long press = resetear</p>
         </footer>
     </div>
 
+    <!-- SCRIPTS -->
     <script src="script.js"></script>
 </body>
 </html>

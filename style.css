@@ -206,6 +206,12 @@ body {
     display: none;
 }
 
+.photocard {
+    /* ... otros estilos ... */
+    -webkit-touch-callout: none; /* Bloquea el menú nativo en iOS */
+    user-select: none;           /* Bloquea la selección de texto */
+}
+
 /* BADGE REPETIDAS */
 .reps-badge {
     position: absolute;
@@ -399,3 +405,4 @@ input:checked + .slider:before { transform: translateX(20px); }
     color: var(--taupe);
     line-height: 1.6;
 }
+
