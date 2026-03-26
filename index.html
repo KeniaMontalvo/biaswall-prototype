@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-
-    <!--Estructura Principal-->
     <div class="app-container">
         <header class="header">
             <h1 class="logo">Bias<span class="logo-accent">Wall</span></h1>
@@ -17,32 +15,82 @@
         </header>
 
         <nav class="top-nav">
-            <button class="nav-btn active">Colección</button>
-            <button class="nav-btn">Stats</button>
-            <button class="nav-btn">Intercambio</button>
-            <button class="nav-btn">Ajustes</button>
+            <button class="nav-btn active" onclick="switchView('coleccion')">Colección</button>
+            <button class="nav-btn" onclick="switchView('stats')">Stats</button>
+            <button class="nav-btn" onclick="switchView('intercambio')">Intercambio</button>
+            <button class="nav-btn" onclick="switchView('ajustes')">Ajustes</button>
         </nav>
 
-        <div class="filter-tabs">
-            <button class="filter-btn active">Todo</button>
-            <button class="filter-btn">Album</button>
-            <button class="filter-btn">POB</button>
-            <button class="filter-btn">Lucky Draw</button>
-        </div>
+        <main class="app-content">
+            
+            <section id="view-coleccion" class="view">
+                <div class="filter-tabs">
+                    <button class="filter-btn active">Todo</button>
+                    <button class="filter-btn">Album</button>
+                    <button class="filter-btn">POB</button>
+                    <button class="filter-btn">Lucky Draw</button>
+                </div>
+                <div class="priority-selector">
+                    <button class="priority-btn active">OT7</button>
+                    <button class="priority-btn">Bias</button>
+                </div>
+                <div id="collection-grid" class="collection-grid"></div>
+            </section>
 
-        <div class="priority-selector">
-            <button class="priority-btn active">OT7</button>
-            <button class="priority-btn">Bias</button>
-        </div>
+            <section id="view-stats" class="view" style="display: none;">
+                <div class="stats-header">
+                    <h2 class="view-title">Tu colección</h2>
+                    <p class="view-subtitle">BTS · Todas las eras</p>
+                    <div class="progress-container-main">
+                        <span id="total-percent-text">0% completado</span>
+                        <div class="progress-bar-bg">
+                            <div id="total-progress-fill" class="progress-bar-fill"></div>
+                        </div>
+                    </div>
+                </div>
 
-        <main class="collection-content" id="collection-grid">
-            </main>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Obtenidas</span>
+                        <span class="stat-value" id="stat-obtained">0</span>
+                        <span class="stat-sub">de 14 photocards</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Faltantes</span>
+                        <span class="stat-value" id="stat-missing">14</span>
+                        <span class="stat-sub">por conseguir</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Repetidas</span>
+                        <span class="stat-value" id="stat-reps">0</span>
+                        <span class="stat-sub">para intercambio</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Completado</span>
+                        <span class="stat-value-alt" id="stat-wishlist-percent">0%</span>
+                        <span class="stat-sub">de tu wishlist</span>
+                    </div>
+                </div>
+
+                <div class="stats-by-era">
+                    <h3 class="section-label">POR ERA</h3>
+                    <div id="era-stats-list"></div>
+                </div>
+            </section>
+
+            <section id="view-intercambio" class="view" style="display: none;">
+                <div class="stats-header">
+                    <h2 class="view-title">Código de Intercambio</h2>
+                    <p>Próximamente...</p>
+                </div>
+            </section>
+
+        </main>
 
         <footer class="footer-legend">
             <p>Tap = obtener · Tap otra vez = repetida · Long press = resetear</p>
         </footer>
     </div>
-    <!--Estructura Principal-->
 
     <script src="script.js"></script>
 </body>
