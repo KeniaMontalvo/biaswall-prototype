@@ -298,3 +298,104 @@ body {
 
 .era-stat-row { margin-bottom: 15px; }
 .era-stat-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+
+/* DISEÑO DE AJUSTES */
+.settings-group {
+    padding: 20px 0;
+}
+
+.settings-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--taupe);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.settings-card {
+    background: var(--warm-white);
+    border: 1px solid var(--sand);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--sand);
+    font-size: 14px;
+}
+
+.settings-row:last-child { border-bottom: none; }
+
+.badge-version {
+    background: #F2D7D5;
+    color: #C0392B;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.text-mute { color: var(--taupe); }
+
+/* BOTONES DE AJUSTES */
+.btn-settings {
+    width: 100%;
+    padding: 15px;
+    background: var(--warm-white);
+    border: 1px solid var(--sand);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--deep-brown);
+    cursor: pointer;
+}
+
+.btn-danger {
+    color: var(--accent-rose);
+    border-color: #F2D7D5;
+}
+
+/* SWITCHES (TOGGLES) */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.toggle input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--sand);
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px; width: 16px;
+    left: 2px; bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider { background-color: var(--accent-sage); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+.settings-footer {
+    text-align: center;
+    padding: 20px 0;
+    font-size: 11px;
+    color: var(--taupe);
+    line-height: 1.6;
+}
