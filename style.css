@@ -130,12 +130,6 @@ body {
 .priority-btn.active { background: #F0EBE3; font-weight: 600; }
 
 /* GRID DE COLECCIÓN */
-.collection-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0 20px;
-}
-
 .era-section { 
     margin-bottom: 25px; 
 }
@@ -200,6 +194,18 @@ body {
     color: #8F867E; 
 }
 
+.app-content {
+    flex: 1;
+    overflow-y: auto; /* Permite scroll solo en el contenido */
+    padding: 0 20px;
+    padding-bottom: 20px; /* Espacio extra al final */
+}
+
+/* Opcional: Ocultar la barra de scroll para que parezca más app */
+.app-content::-webkit-scrollbar {
+    display: none;
+}
+
 /* BADGE REPETIDAS */
 .reps-badge {
     position: absolute;
@@ -219,9 +225,76 @@ body {
 }
 
 .footer-legend {
-    padding: 15px;
+    position: sticky; /* Se queda pegada al fondo del contenedor */
+    bottom: 0;
+    width: 100%;
+    background: rgba(250, 248, 243, 0.9); /* --cream con transparencia */
+    backdrop-filter: blur(5px); /* Efecto de vidrio esmerilado */
+    border-top: 1px solid var(--sand);
+    padding: 12px 0;
     text-align: center;
-    font-size: 11px;
-    color: #B0A69D;
-    font-style: italic;
+    z-index: 10;
 }
+
+.footer-legend p {
+    margin: 0;
+    font-size: 11px;
+    color: var(--taupe);
+    font-family: var(--font-body);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* VISTA ESTADÍSTICAS */
+/* Manejo de Vistas */
+.view { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Stats Styles */
+.stats-header { padding: 20px; }
+.view-title { font-family: var(--font-display); font-size: 24px; margin: 0; }
+.view-subtitle { color: var(--taupe); font-size: 14px; margin-top: 5px; }
+
+.progress-container-main { margin-top: 15px; }
+#total-percent-text { font-size: 14px; color: var(--accent-rose); font-weight: bold; }
+
+.progress-bar-bg { 
+    background: var(--sand); 
+    height: 8px; 
+    border-radius: 10px; 
+    margin-top: 8px; 
+    overflow: hidden; 
+}
+.progress-bar-fill { 
+    background: var(--accent-sage); 
+    height: 100%; 
+    width: 0%; 
+    transition: width 0.5s ease; 
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 0 20px;
+}
+
+.stat-card {
+    background: var(--warm-white);
+    border: 1px solid var(--sand);
+    padding: 15px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label { font-size: 12px; color: var(--taupe); }
+.stat-value { font-size: 28px; font-family: var(--font-display); margin: 5px 0; }
+.stat-value-alt { font-size: 28px; font-family: var(--font-display); color: var(--accent-rose); margin: 5px 0; }
+.stat-sub { font-size: 10px; color: var(--taupe); }
+
+.stats-by-era { padding: 25px 20px; }
+.section-label { font-size: 12px; letter-spacing: 1px; color: var(--taupe); margin-bottom: 15px; }
+
+.era-stat-row { margin-bottom: 15px; }
+.era-stat-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
