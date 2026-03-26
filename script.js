@@ -135,21 +135,24 @@ function updateStats() {
     document.getElementById('stat-wishlist-percent').innerText = `${totalPercent}%`;
 }
 
-function switchView(viewName) {
+function switchView(viewId) {
     // 1. Ocultar todas las vistas
     document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
     
-    // 2. Quitar clase active de todos los botones
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    // 2. Mostrar la vista seleccionada
+    document.getElementById('view-' + viewId).style.display = 'block';
 
-    // 3. Mostrar la vista elegida
-    document.getElementById(`view-${viewName}`).style.display = 'block';
+    // 3. Manejar la visibilidad de la leyenda (Footer)
+    const footer = document.querySelector('.footer-legend');
+    if (viewId === 'coleccion') {
+        footer.style.display = 'block';
+    } else {
+        footer.style.display = 'none';
+    }
 
-    // 4. Activar el botón correcto (basado en el texto)
-    const btn = Array.from(document.querySelectorAll('.nav-btn'))
-                     .find(b => b.innerText.toLowerCase() === viewName);
-    if(btn) btn.classList.add('active');
-
-    // 5. Si es stats, actualizar los números
-    if(viewName === 'stats') updateStats();
+    // 4. Actualizar estado activo en la barra inferior
+    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+    // Buscamos el botón que tiene el onclick con el viewId correspondiente
+    const activeBtn = document.querySelector(`.nav-item[onclick="switchView('${viewId}')"]`);
+    if (activeBtn) activeBtn.classList.add('active');
 }

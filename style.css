@@ -42,6 +42,9 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: var(--cream);
+    border-bottom: 1px solid var(--sand); /* Línea divisoria sutil */
+    z-index: 10;
 }
 
 .logo { 
@@ -133,7 +136,7 @@ body {
 
 .filter-tabs { 
     display: flex; 
-    padding: 15px; 
+    padding: 0 0 15px 0;
     gap: 8px; 
 }
 
@@ -235,8 +238,7 @@ body {
 .app-content {
     flex: 1;
     overflow-y: auto; /* Permite scroll solo en el contenido */
-    padding: 0 20px;
-    padding-bottom: 20px; /* Espacio extra al final */
+    padding: 10px 20px 20px;
 }
 
 /* Opcional: Ocultar la barra de scroll para que parezca más app */
