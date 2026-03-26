@@ -142,7 +142,7 @@ function renderCollection() {
                 const matchesMember = (selectedMember === 'todos' || selectedMember === member.name);
                 let matchesQuantity = true;
                 if (quantityFilter === '1') matchesQuantity = status === 1;
-                if (quantityFilter === '2+') matchesQuantity = status === 2;
+                if (quantityFilter === '4') matchesQuantity = status === 4;
 
                 if (!matchesMember || !matchesQuantity) return;
 
@@ -204,8 +204,8 @@ function handleTap(memberId) {
     let currentStatus = userProgress[memberId] || 0;
     
     // Ciclo de 4 estados: 
-    // 0 (No) -> 1 (Have/Verde) -> 2 (Way/Amarillo) -> 3 (Drop/Rojo) -> vuelve a 0
-    let nextStatus = (currentStatus + 1) % 4;
+    // 0 (No) -> 1 (Have/Verde) -> 2 (Way/Amarillo) -> 3 (Drop/Rojo) -> 4 (Trade/Rosa) -> vuelve a 0
+    let nextStatus = (currentStatus + 1) % 5;
     
     // Guardamos el progreso
     userProgress[memberId] = nextStatus;

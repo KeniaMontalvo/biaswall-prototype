@@ -390,6 +390,14 @@ body {
     filter: none;
 }
 
+/* Estado 4: TRADE (Rosa y muy transparente) */
+.photocard.status-4 {
+    border: 3px solid #FF69B4;
+    background-color: #fff;
+    filter: none;
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.4);
+}
+
 .photocard.not-owned { 
     opacity: 0.3; 
 }
@@ -494,6 +502,7 @@ body {
 .dot.status-1 { background: #4CAF50; }
 .dot.status-2 { background: #FFC107; }
 .dot.status-3 { background: #F44336; }
+.dot.status-4 { background: #FF69B4; }
 
 /* VISTA ESTADÍSTICAS */
 /* Manejo de Vistas */
