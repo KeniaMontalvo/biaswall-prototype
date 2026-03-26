@@ -63,14 +63,51 @@ function renderCollection() {
 
             // EVENTOS
             let timer;
-            pc.addEventListener('click', (event) => handleTap(key, event));
-            
-            // Simulación Long Press
-            pc.addEventListener('mousedown', () => {
-                timer = setTimeout(() => resetCard(key), 800);
+            let isLongPress = false;
+
+            const startPress = () => {
+                isLongPress = false; 
+                timer = setTimeout(() => {
+                    resetCard(key);
+                    isLongPress = true; // Activamos el escudo
+                    if (navigator.vibrate) navigator.vibrate(50);
+                }, 800);
+            };
+
+            const cancelPress = () => {
+                clearTimeout(timer);
+            };
+
+            const handleRelease = (e) => {
+                clearTimeout(timer);
+                
+                if (isLongPress) {
+                    // En lugar de false inmediato, esperamos 100ms
+                    // Esto bloquea cualquier evento "click" que venga de camino
+                    setTimeout(() => { isLongPress = false; }, 100);
+                    return; 
+                }
+                
+                handleTap(key, e);
+            };
+
+            // Listeners para Laptop (PC)
+            pc.addEventListener('mousedown', startPress);
+            pc.addEventListener('mouseup', handleRelease);
+            pc.addEventListener('mouseleave', cancelPress);
+
+            // Listeners para Móvil
+            pc.addEventListener('touchstart', (e) => {
+                startPress();
+            }, { passive: true });
+
+            pc.addEventListener('touchend', (e) => {
+                handleRelease(e);
+                // Evita que el navegador emule un click de mouse tras el touch
+                if (isLongPress) e.preventDefault(); 
             });
-            pc.addEventListener('mouseup', () => clearTimeout(timer));
-            pc.addEventListener('mouseleave', () => clearTimeout(timer));
+
+            pc.addEventListener('touchcancel', cancelPress);
 
             pcGrid.appendChild(pc);
         });
@@ -186,3 +223,10 @@ function switchView(viewId) {
     const activeBtn = document.querySelector(`.nav-item[onclick="switchView('${viewId}')"]`);
     if (activeBtn) activeBtn.classList.add('active');
 }
+
+// Bloquea el menú contextual en las photocards para que no estorbe el reset
+document.addEventListener('contextmenu', function(e) {
+    if (e.target.closest('.photocard')) {
+        e.preventDefault();
+    }
+}, false);

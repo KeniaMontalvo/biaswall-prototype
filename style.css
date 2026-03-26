@@ -322,8 +322,17 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: opacity 0.2s;
+    
+    /* BLOQUEO DE GESTOS NATIVOS */
     -webkit-touch-callout: none; /* Bloquea el menú nativo en iOS */
     user-select: none;           /* Bloquea la selección de texto */
+    -webkit-touch-callout: none; /* Bloquea el menú de "Guardar imagen/Copiar" en iOS */
+    -webkit-user-select: none;    /* Bloquea la selección de texto en Chrome/Safari */
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;            /* Bloquea la selección estándar */
+    touch-action: manipulation;   /* Evita zooms accidentales al tocar rápido */
 }
 
 .photocard.not-owned { 
