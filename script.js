@@ -1,12 +1,34 @@
 const groupsData = {
     bts: [
-        { 
-            name: "ARIRANG", 
-            year: "2024", 
-            members: [
-                { id: "rm_album", name: "RM", type: "album", img: "assets/bts/arirang/rm_album.jpg" },
-                { id: "jin_album", name: "Jin", type: "album", img: "assets/bts/arirang/jin_album.jpg" },
-                { id: "jimin_pob", name: "Jimin", type: "pob", img: "assets/bts/arirang/jimin_pob.jpg" },
+        {
+            album: "ARIRANG",
+            year: "2024",
+            versions: [
+                {
+                    subname: "Rooted in Korea",
+                    members: [
+                        { id: "arirang_rik_rm", name: "RM", img: "URL_AQUÍ" },
+                        { id: "arirang_rik_jin", name: "Jin", img: "URL_AQUÍ" },
+                        { id: "arirang_rik_suga", name: "Suga", img: "URL_AQUÍ" },
+                        { id: "arirang_rik_jhope", name: "J-Hope", img: "URL_AQUÍ" },
+                        { id: "arirang_rik_jimin", name: "Jimin", img: "URL_AQUÍ" },
+                        { id: "arirang_rik_v", name: "V", img: "URL_AQUÍ" },
+                        { id: "arirang_rik_jk", name: "JK", img: "URL_AQUÍ" }
+                    ]
+                },
+                {
+                    subname: "Living Legend",
+                    members: [
+                        { id: "arirang_ll_rm", name: "RM", img: "URL_AQUÍ" },
+                        { id: "arirang_ll_jin", name: "Jin", img: "URL_AQUÍ" },
+                        { id: "arirang_ll_suga", name: "Suga", img: "URL_AQUÍ" },
+                        { id: "arirang_ll_jhope", name: "J-Hope", img: "URL_AQUÍ" },
+                        { id: "arirang_ll_jimin", name: "Jimin", img: "URL_AQUÍ" },
+                        { id: "arirang_ll_v", name: "V", img: "URL_AQUÍ" },
+                        { id: "arirang_ll_jk", name: "JK", img: "URL_AQUÍ" }
+                    ]
+                }
+                // Puedes seguir añadiendo versiones aquí siguiendo el mismo formato
             ]
         }
     ],
@@ -87,91 +109,93 @@ function applyFilters() {
 
 function renderCollection() {
     const grid = document.getElementById('collection-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     
-    const selectedData = groupsData[currentArtist] || [];
+    const albums = groupsData[currentArtist] || [];
 
-    selectedData.forEach(era => {
-        // 1. FILTRADO
-        const membersToDisplay = era.members.filter(m => {
-            const matchesMember = (selectedMember === 'todos' || selectedMember === m.name);
-            const status = userProgress[m.id] || 0;
+    albums.forEach(album => {
+        // Recorremos las versiones (ej. Rooted in Korea, Living Legend)
+        album.versions.forEach(version => {
             
-            let matchesQuantity = true;
-            if (quantityFilter === '1') matchesQuantity = status === 1; // Obtenidas
-            if (quantityFilter === '2+') matchesQuantity = status === 2; // En camino
+            // 1. Crear el Título de la Versión
+            const section = document.createElement('div');
+            section.className = 'era-section';
             
-            return matchesMember && matchesQuantity;
-        });
+            // Calculamos cuántas tienes de esta versión específica
+            const ownedInVersion = version.members.filter(m => (userProgress[m.id] || 0) === 1).length;
 
-        if (membersToDisplay.length === 0) return;
+            section.innerHTML = `
+                <div class="era-title">
+                    ${album.album} — ${version.subname} <span style="color:#D6A6A6">${ownedInVersion}/${version.members.length}</span>
+                </div>
+                <div class="pc-grid"></div>
+            `;
 
-        const section = document.createElement('div');
-        section.className = 'era-section';
-        
-        // Conteo de la era
-        let ownedInEra = era.members.filter(m => (userProgress[m.id] || 0) === 1).length;
+            const pcGrid = section.querySelector('.pc-grid');
 
-        section.innerHTML = `
-            <div class="era-title">
-                ${era.name} — ${era.year} <span style="color:#D6A6A6">${ownedInEra}/${era.members.length}</span>
-            </div>
-            <div class="pc-grid"></div>
-        `;
+            // 2. Filtrado y Renderizado de Cards
+            version.members.forEach(member => {
+                const status = userProgress[member.id] || 0;
 
-        const pcGrid = section.querySelector('.pc-grid');
+                // Aplicar filtros (Miembro y Estado)
+                const matchesMember = (selectedMember === 'todos' || selectedMember === member.name);
+                let matchesQuantity = true;
+                if (quantityFilter === '1') matchesQuantity = status === 1;
+                if (quantityFilter === '2+') matchesQuantity = status === 2;
 
-        membersToDisplay.forEach(member => {
-            const status = userProgress[member.id] || 0;
-            const pc = document.createElement('div');
-            
-            // Aplicamos la clase de estado (status-0, status-1, etc)
-            pc.className = `photocard status-${status}`;
+                if (!matchesMember || !matchesQuantity) return;
 
-            pc.style.backgroundColor = status === 0 ? '#f0f0f0' : '#ffffff';
-            
-            pc.innerHTML = `
-            <img src="${member.img}" 
-                class="pc-image" 
-                alt="${member.name}" 
-                onerror="this.onerror=null; this.src='https://placehold.co/200x300?text=${member.name}';">
-        `;
+                const pc = document.createElement('div');
+                pc.className = `photocard status-${status}`;
+                pc.style.backgroundColor = status === 0 ? '#f0f0f0' : '#ffffff';
+                
+                pc.innerHTML = `
+                    <img src="${member.img}" 
+                        class="pc-image" 
+                        alt="${member.name}" 
+                        onerror="this.onerror=null; this.src='https://placehold.co/200x300?text=${member.name}';">
+                `;
 
-            // EVENTOS
-            let timer;
-            let isLongPress = false;
+                // --- TUS EVENTOS DE LONG PRESS (Mantenidos) ---
+                let timer;
+                let isLongPress = false;
 
-            const startPress = () => {
-                isLongPress = false; 
-                timer = setTimeout(() => {
-                    resetCard(member.id);
-                    isLongPress = true;
-                    if (navigator.vibrate) navigator.vibrate(50);
-                }, 800);
-            };
+                const startPress = () => {
+                    isLongPress = false; 
+                    timer = setTimeout(() => {
+                        resetCard(member.id);
+                        isLongPress = true;
+                        if (navigator.vibrate) navigator.vibrate(50);
+                    }, 800);
+                };
 
-            const handleRelease = (e) => {
-                clearTimeout(timer);
-                if (isLongPress) {
-                    setTimeout(() => { isLongPress = false; }, 100);
-                    return; 
-                }
-                handleTap(member.id);
-            };
+                const handleRelease = (e) => {
+                    clearTimeout(timer);
+                    if (isLongPress) {
+                        setTimeout(() => { isLongPress = false; }, 100);
+                        return; 
+                    }
+                    handleTap(member.id);
+                };
 
-            pc.addEventListener('mousedown', startPress);
-            pc.addEventListener('mouseup', handleRelease);
-            pc.addEventListener('mouseleave', () => clearTimeout(timer));
-            pc.addEventListener('touchstart', startPress, { passive: true });
-            pc.addEventListener('touchend', (e) => {
-                handleRelease(e);
-                if (isLongPress) e.preventDefault(); 
+                pc.addEventListener('mousedown', startPress);
+                pc.addEventListener('mouseup', handleRelease);
+                pc.addEventListener('mouseleave', () => clearTimeout(timer));
+                pc.addEventListener('touchstart', startPress, { passive: true });
+                pc.addEventListener('touchend', (e) => {
+                    handleRelease(e);
+                    if (isLongPress) e.preventDefault(); 
+                });
+
+                pcGrid.appendChild(pc);
             });
 
-            pcGrid.appendChild(pc);
+            // Solo añadimos la sección si tiene cartas que mostrar
+            if (pcGrid.children.length > 0) {
+                grid.appendChild(section);
+            }
         });
-
-        grid.appendChild(section);
     });
 }
 
