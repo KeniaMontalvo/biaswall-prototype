@@ -23,7 +23,7 @@
 
         <main class="app-content">
             
-            <section id="view-coleccion" class="view">
+        <section id="view-coleccion" class="view">
                 <div class="filter-tabs">
                     <button class="filter-btn active">Todo</button>
                     <button class="filter-btn">Album</button>
@@ -35,9 +35,9 @@
                     <button class="priority-btn">Bias</button>
                 </div>
                 <div id="collection-grid" class="collection-grid"></div>
-            </section>
+        </section>
 
-            <section id="view-stats" class="view" style="display: none;">
+        <section id="view-stats" class="view" style="display: none;">
                 <div class="stats-header">
                     <h2 class="view-title">Tu colección</h2>
                     <p class="view-subtitle">BTS · Todas las eras</p>
@@ -76,14 +76,68 @@
                     <h3 class="section-label">POR ERA</h3>
                     <div id="era-stats-list"></div>
                 </div>
-            </section>
+        </section>
 
-            <section id="view-intercambio" class="view" style="display: none;">
+        <section id="view-intercambio" class="view" style="display: none;">
                 <div class="stats-header">
                     <h2 class="view-title">Código de Intercambio</h2>
                     <p>Próximamente...</p>
                 </div>
-            </section>
+        </section>
+
+        <section id="view-ajustes" class="view" style="display: none;">
+        <div class="settings-group">
+            <h3 class="settings-label">MI CUENTA</h3>
+            <div class="settings-card">
+                <div class="settings-row">
+                    <span>Versión</span>
+                    <span class="badge-version">Free</span>
+                </div>
+                <div class="settings-row">
+                    <span>Artista activo</span>
+                    <span class="text-mute">BTS</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <h3 class="settings-label">FILTROS DE COLECCIÓN</h3>
+            <div class="settings-card">
+                <div class="settings-row">
+                    <span>Incluir álbumes japoneses</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-jp">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row">
+                    <span>Incluir POBs</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-pob" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-row">
+                    <span>Incluir Lucky Draws</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-ld">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <h3 class="settings-label">DATOS</h3>
+            <button class="btn-settings" onclick="exportCollection()">Exportar colección</button>
+            <button class="btn-settings btn-danger" onclick="resetAllData()">Resetear todos los datos</button>
+        </div>
+
+        <div class="settings-footer">
+            <p>BiasWall v0.1.0-mvp</p>
+            <p>Hecho con mucho amor por fans, para fans</p>
+        </div>
+        </section>
 
         </main>
 
