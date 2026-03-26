@@ -223,6 +223,12 @@ body {
     opacity: 1;
 }
 
+.photocard:active {
+    transform: scale(0.92);
+    transition: transform 0.1s ease;
+    filter: brightness(0.9);
+}
+
 .pc-initial { 
     font-size: 18px; 
     color: #B0A69D; 

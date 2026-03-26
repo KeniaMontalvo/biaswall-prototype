@@ -40,7 +40,7 @@ function renderCollection() {
 
             // EVENTOS
             let timer;
-            pc.addEventListener('click', () => handleTap(key));
+            pc.addEventListener('click', (event) => handleTap(key, event));
             
             // Simulación Long Press
             pc.addEventListener('mousedown', () => {
@@ -56,11 +56,18 @@ function renderCollection() {
     });
 }
 
-function handleTap(key) {
+function handleTap(key, event) {
+    // Si presionas ALT en PC mientras haces click, resetea la carta
+    if (event && event.altKey) {
+        resetCard(key);
+        return; // Salimos de la función para que no sume una unidad
+    }
+
+    // Lógica normal de suma
     if (!userProgress[key]) {
-        userProgress[key] = 1; // Primer tap: obtener
+        userProgress[key] = 1; 
     } else {
-        userProgress[key] += 1; // Taps siguientes: repetida
+        userProgress[key] += 1;
     }
     renderCollection();
 }
