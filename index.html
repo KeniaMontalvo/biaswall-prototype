@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BisWall Collection</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <!--Estructura Principal-->
+    <div class="app-container">
+        <header class="header">
+            <h1 class="logo">Bias<span class="logo-accent">Wall</span></h1>
+            <span class="badge-artist">BTS</span>
+        </header>
+
+        <nav class="top-nav">
+            <button class="nav-btn active">Colección</button>
+            <button class="nav-btn">Stats</button>
+            <button class="nav-btn">Intercambio</button>
+            <button class="nav-btn">Ajustes</button>
+        </nav>
+
+        <div class="filter-tabs">
+            <button class="filter-btn active">Todo</button>
+            <button class="filter-btn">Album</button>
+            <button class="filter-btn">POB</button>
+            <button class="filter-btn">Lucky Draw</button>
+        </div>
+
+        <div class="priority-selector">
+            <button class="priority-btn active">OT7</button>
+            <button class="priority-btn">Bias</button>
+        </div>
+
+        <main class="collection-content" id="collection-grid">
+            </main>
+
+        <footer class="footer-legend">
+            <p>Tap = obtener · Tap otra vez = repetida · Long press = resetear</p>
+        </footer>
+    </div>
+    <!--Estructura Principal-->
+
+    <script src="script.js"></script>
+</body>
+</html>
