@@ -23,6 +23,118 @@ body {
     justify-content: center;
 }
 
+/* PANTALLA DE SELECCIÓN (ONBOARDING) */
+.onboarding-view {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: var(--cream);
+    z-index: 1000; /* Por encima de todo */
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-body);
+}
+
+.onboarding-header {
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--sand);
+}
+
+.onboarding-subtitle {
+    font-size: 14px;
+    color: var(--taupe);
+    margin-top: 10px;
+}
+
+.artist-selection-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* Estilo de cada fila de artista */
+.artist-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: var(--warm-white);
+    border: 1px solid var(--sand);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.artist-item.enabled { cursor: pointer; }
+.artist-item.enabled:hover { transform: translateY(-2px); border-color: var(--accent-sage); }
+
+/* Estados inhabilitados */
+.artist-item.disabled {
+    opacity: 0.6;
+    background-color: var(--sand);
+    cursor: not-allowed;
+}
+
+/* Iconos de artistas (circulares) */
+.artist-icon {
+    width: 45px; height: 45px;
+    border-radius: 50%;
+    background-color: var(--sand);
+    margin-right: 15px;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Placeholders para los iconos (úsalos mientras subes imágenes reales) */
+.bts-icon { background-color: #3D3834; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
+.bts-icon::before { content: "BTS"; }
+
+.twice-icon { background-color: #FF69B4; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
+.twice-icon::before { content: "TWICE"; }
+
+/* Iconos para los 'disabled' */
+.txt-icon, .enhypen-icon { background-color: #A0A0A0; }
+
+.artist-name { flex: 1; font-weight: bold; color: var(--deep-brown); }
+
+.badge-soon {
+    font-size: 10px;
+    color: var(--accent-rose);
+    border: 1px solid var(--accent-rose);
+    padding: 2px 6px;
+    border-radius: 8px;
+    text-transform: uppercase;
+}
+
+.badge-artist {
+    background-color: var(--deep-brown);
+    color: var(--warm-white);
+    border: none;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Efecto al tocar/clic */
+.badge-artist:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+
+/* Opcional: añadir un pequeño icono de flecha para indicar que regresa */
+.badge-artist::before {
+    content: "\f060"; /* Icono de flecha hacia la izquierda de FontAwesome */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 10px;
+}
+
 /*PÁGINA PRINCIPAL*/
 
 .app-container {

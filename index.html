@@ -8,12 +8,46 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
 
+    <!-- ONBOARDING -->
+    <div id="view-onboarding" class="onboarding-view">
+        <header class="onboarding-header">
+            <h1 class="logo">Bias<span class="logo-accent">Wall</span></h1>
+            <p class="onboarding-subtitle">Selecciona tus artistas para comenzar</p>
+        </header>
+        
+        <main class="artist-selection-list">
+            <h2 class="section-label">TUS ARTISTAS DISPONIBLES</h2>
+            
+            <div class="artist-item enabled" onclick="selectInitialArtist('bts')">
+                <div class="artist-icon bts-icon"></div>
+                <span class="artist-name">BTS</span>
+                <i class="fa-solid fa-chevron-right text-mute"></i>
+            </div>
+            
+            <div class="artist-item enabled" onclick="selectInitialArtist('twice')">
+                <div class="artist-icon twice-icon"></div>
+                <span class="artist-name">Twice</span>
+                <i class="fa-solid fa-chevron-right text-mute"></i>
+            </div>
+            
+            <h2 class="section-label">PRÓXIMAMENTE...</h2>
+            
+            <div class="artist-item disabled">
+                <div class="artist-icon txt-icon"></div>
+                <span class="artist-name">TOMORROW X TOGETHER</span>
+                <span class="badge-soon">Soon</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="app-container" id="main-app" style="display: none;">
+        
         <!-- HEADER -->
         <header class="header">
             <h1 class="logo">Bias<span class="logo-accent">Wall</span></h1>
-            <span class="badge-artist">BTS</span>
+            <button class="badge-artist" id="header-artist-name" onclick="goToOnboarding()">BTS</button>
         </header>
 
         <!-- MAIN CONTENT -->

@@ -3,6 +3,29 @@ const btsData = [
     { name: "LOVE YOURSELF 轉 'TEAR'", year: "2018", members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"] }
 ];
 
+// Variable global para saber qué artista estamos viendo
+let currentArtist = 'bts';
+
+// Función que se ejecuta al seleccionar un artista inicial
+function selectInitialArtist(artistId) {
+    currentArtist = artistId;
+    
+    // Ocultar lista de artistas y mostrar la app
+    document.getElementById('view-onboarding').style.display = 'none';
+    document.getElementById('main-app').style.display = 'flex'; // Usamos el ID nuevo
+    
+    const headerName = document.getElementById('header-artist-name');
+    headerName.innerText = artistId.toUpperCase();
+
+    switchView('coleccion');
+}
+
+function goToOnboarding() {
+    // Regresar a la nada... ¡ahora corregido!
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('view-onboarding').style.display = 'flex';
+}
+
 // Estado de la colección: { "EraName_Member": cantidad }
 let userProgress = {};
 
