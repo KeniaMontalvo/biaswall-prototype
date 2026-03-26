@@ -1,7 +1,13 @@
-const btsData = [
-    { name: "BUTTER ERA", year: "2021", members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"] },
-    { name: "LOVE YOURSELF 轉 'TEAR'", year: "2018", members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"] }
-];
+const groupsData = {
+    bts: [
+        { name: "BUTTER ERA", year: "2021", members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"] },
+        { name: "LOVE YOURSELF 轉 'TEAR'", year: "2018", members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"] }
+    ],
+    twice: [
+        { name: "READY TO BE", year: "2023", members: ["Nayeon", "Jeongyeon", "Momo", "Sana", "Jihyo", "Mina", "Dahyun", "Chaeyoung", "Tzuyu"] },
+        { name: "FORMULA OF LOVE", year: "2021", members: ["Nayeon", "Jeongyeon", "Momo", "Sana", "Jihyo", "Mina", "Dahyun", "Chaeyoung", "Tzuyu"] }
+    ]
+};
 
 // Variable global para saber qué artista estamos viendo
 let currentArtist = 'bts';
@@ -15,7 +21,11 @@ function selectInitialArtist(artistId) {
     document.getElementById('main-app').style.display = 'flex'; // Usamos el ID nuevo
     
     const headerName = document.getElementById('header-artist-name');
-    headerName.innerText = artistId.toUpperCase();
+    if (headerName) {
+        headerName.innerText = artistId.toUpperCase();
+    }
+
+    renderCollection();
 
     switchView('coleccion');
 }
@@ -32,8 +42,11 @@ let userProgress = {};
 function renderCollection() {
     const grid = document.getElementById('collection-grid');
     grid.innerHTML = '';
+    
+    // Usamos el artista seleccionado actualmente
+    const selectedData = groupsData[currentArtist] || [];
 
-    btsData.forEach(era => {
+    selectedData.forEach(era => {
         const section = document.createElement('div');
         section.className = 'era-section';
         
@@ -133,7 +146,13 @@ function handleTap(key, event) {
 }
 
 function resetCard(key) {
-    delete userProgress[key]; // Resetear
+    if (userProgress[key] > 1) {
+        // Si tienes más de una, solo restamos una
+        userProgress[key] -= 1;
+    } else {
+        // Si solo tenías una, la eliminamos por completo
+        delete userProgress[key];
+    }
     renderCollection();
 }
 
