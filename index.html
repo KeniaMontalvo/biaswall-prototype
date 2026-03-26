@@ -16,14 +16,6 @@
             <span class="badge-artist">BTS</span>
         </header>
 
-        <!-- NAVIGATION -->
-        <nav class="top-nav">
-            <button class="nav-btn active" onclick="switchView('coleccion')">Colección</button>
-            <button class="nav-btn" onclick="switchView('stats')">Stats</button>
-            <button class="nav-btn" onclick="switchView('intercambio')">Intercambio</button>
-            <button class="nav-btn" onclick="switchView('ajustes')">Ajustes</button>
-        </nav>
-
         <!-- MAIN CONTENT -->
         <main class="app-content">
         
@@ -153,6 +145,27 @@
         <footer class="footer-legend">
             <p>Tap = obtener · Tap otra vez = repetida · Long press = resetear</p>
         </footer>
+
+        <!-- NAVIGATION -->
+        <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchView('coleccion')">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Colección</span>
+        </button>
+        <button class="nav-item" onclick="switchView('stats')">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Stats</span>
+        </button>
+        <button class="nav-item" onclick="switchView('intercambio')">
+            <i class="fa-solid fa-qrcode"></i>
+            <span>Trade</span>
+        </button>
+        <button class="nav-item" onclick="switchView('ajustes')">
+            <i class="fa-solid fa-gear"></i>
+            <span>Ajustes</span>
+        </button>
+    </nav>
+
     </div>
 
     <!-- SCRIPTS -->

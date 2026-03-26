@@ -62,39 +62,75 @@ body {
     padding: 2px 12px; border-radius: 12px; font-size: 12px; 
 }
 
-/* NAVEGACIÓN SUPERIOR */
-.top-nav {
+/* NAVEGACIÓN INFERIOR */
+.bottom-nav {
     display: flex;
-    padding: 0 15px;
-    gap: 8px;
+    justify-content: space-around;
+    align-items: center;
+    background-color: var(--cream);
+    border-top: 1px solid var(--sand);
+    padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); /* Espacio para el dock de iPhone */
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
 }
 
-.nav-btn, .filter-btn {
+.nav-item {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--taupe);
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.3s ease;
+}
+
+.nav-item i {
+    font-size: 20px;
+}
+
+.nav-item span {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Estado Activo */
+.nav-item.active {
+    color: var(--deep-brown);
+}
+
+.nav-item.active i {
+    transform: translateY(-2px); /* Un pequeño salto sutil */
+    color: var(--accent-rose); /* O el color que prefieras para destacar */
+}
+
+/* FILTROS Y SELECTOR */
+
+.filter-btn {
     font-family: var(--font-body);
     color: var(--deep-brown);
     border: 1px solid var(--sand);
     background: var(--warm-white);
     border-radius: 8px;
     transition: all 0.2s ease;
-}
-
-.nav-btn {
     flex: 1;
-    padding: 8px;
-    font-size: 13px;
+    padding: 6px;
+    font-size: 12px;
     cursor: pointer;
 }
 
-.nav-btn.active { 
-    box-shadow: inset 0 0 0 1px var(--text-main); font-weight: 600; 
-}
-
-.nav-btn.active, .filter-btn.active {
+/* Solo para el estado activo de los filtros */
+.filter-btn.active {
     background: var(--deep-brown);
     color: var(--warm-white);
+    border-color: var(--deep-brown);
 }
 
-/* FILTROS Y SELECTOR */
 .filter-tabs { 
     display: flex; 
     padding: 15px; 
@@ -171,6 +207,8 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: opacity 0.2s;
+    -webkit-touch-callout: none; /* Bloquea el menú nativo en iOS */
+    user-select: none;           /* Bloquea la selección de texto */
 }
 
 .photocard.not-owned { 
@@ -204,12 +242,6 @@ body {
 /* Opcional: Ocultar la barra de scroll para que parezca más app */
 .app-content::-webkit-scrollbar {
     display: none;
-}
-
-.photocard {
-    /* ... otros estilos ... */
-    -webkit-touch-callout: none; /* Bloquea el menú nativo en iOS */
-    user-select: none;           /* Bloquea la selección de texto */
 }
 
 /* BADGE REPETIDAS */
