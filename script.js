@@ -360,6 +360,12 @@ function switchView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
     document.getElementById('view-' + viewId).style.display = 'block';
     
+    //Mostrar la barra de colores solo en colección
+    const legend = document.querySelector('.footer-legend');
+        if (legend) {
+            legend.style.display = (viewId === 'coleccion') ? 'flex' : 'none';
+        }
+
     // Actualizar nav bar
     document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.querySelector(`.nav-item[onclick="switchView('${viewId}')"]`);
