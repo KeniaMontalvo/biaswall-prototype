@@ -378,15 +378,19 @@ function switchView(viewId) {
 
 }
 
+// Necesitamos un objeto para guardar las cantidades de repetidas si no existe
+if (!window.userReps) {
+    window.userReps = JSON.parse(localStorage.getItem('userReps')) || {};
+}
+
 function updateTradeView() {
     const tradeContainer = document.getElementById('view-trade');
     if (!tradeContainer) return;
 
-    // Limpiamos y preparamos la estructura
     tradeContainer.innerHTML = `
         <div class="stats-header">
-            <h1 class="view-title">My repeated</h1>
-            <p class="view-subtitle">These are the cards you have marked for trading.</p>
+            <h1 class="view-title">Trade List</h1>
+            <p class="view-subtitle">Gestiona tus cartas disponibles para intercambio.</p>
         </div>
         <div class="app-content">
             <div class="pc-grid" id="trade-grid"></div>
@@ -395,8 +399,6 @@ function updateTradeView() {
 
     const tradeGrid = document.getElementById('trade-grid');
     let hasTrade = false;
-
-    // USAMOS EL ARTISTA ACTUAL (BTS o Twice)
     const currentAlbums = groupsData[currentArtist] || [];
 
     currentAlbums.forEach(album => {
@@ -404,18 +406,21 @@ function updateTradeView() {
             version.members.forEach(member => {
                 const status = userProgress[member.id] || 0;
 
-                // SI EL STATUS ES 4 (EL ROSA QUE CAMBIASTE)
                 if (status === 4) {
                     hasTrade = true;
-                    const pc = document.createElement('div');
-                    pc.className = 'photocard status-4';
-                    // Añadimos un estilo extra aquí mismo para asegurar que se vea
-                    pc.style.backgroundColor = 'white'; 
+                    const count = window.userReps[member.id] || 1;
                     
+                    const pc = document.createElement('div');
+                    pc.className = 'photocard status-4 trade-item';
                     pc.innerHTML = `
-                        <div class="pc-image-container" style="position:relative;">
+                        <div class="pc-image-container">
                             <img src="${member.img}" class="pc-image" onerror="this.src='https://placehold.co/200x300?text=${member.name}';">
-                            <div class="pc-name" style="padding: 5px; font-size: 12px; text-align: center;">${member.name}</div>
+                            <div class="reps-badge">${count}</div>
+                        </div>
+                        <div class="trade-controls">
+                            <button onclick="changeRepCount('${member.id}', -1)">-</button>
+                            <span>${member.name}</span>
+                            <button onclick="changeRepCount('${member.id}', 1)">+</button>
                         </div>
                     `;
                     tradeGrid.appendChild(pc);
@@ -424,14 +429,24 @@ function updateTradeView() {
         });
     });
 
-    // Si no hay ninguna rosa, mostramos el mensaje de vacío
     if (!hasTrade) {
         tradeGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align:center; padding:40px; color:#D6A6A6;">
-                <i class="fa-solid fa-box-open" style="font-size:40px; margin-bottom:15px;"></i>
-                <p>You don't have any cards marked for trade yet.</p>
+                <i class="fa-solid fa-right-left" style="font-size:40px; opacity:0.3; margin-bottom:15px;"></i>
+                <p>No hay cartas marcadas para trade.<br><small>Mantén presionada una carta en tu colección para cambiarla a rosa.</small></p>
             </div>`;
     }
+}
+
+// Función para aumentar/disminuir repetidas
+function changeRepCount(id, delta) {
+    if (!window.userReps[id]) window.userReps[id] = 1;
+    window.userReps[id] += delta;
+    
+    if (window.userReps[id] < 1) window.userReps[id] = 1; // Mínimo 1 si está en trade
+    
+    localStorage.setItem('userReps', JSON.stringify(window.userReps));
+    updateTradeView();
 }
 
 // Bloqueo de menú contextual
