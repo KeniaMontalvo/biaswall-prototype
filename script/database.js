@@ -1,5 +1,4 @@
 // database.js
-// database.js
 const groupsData = {
     bts: [
         {
@@ -281,15 +280,27 @@ const groupsData = {
             year: "2020",
             versions: [
                 {
-                    subname: "Deluxe / Essential",
+                    subname: "Essential",
                     members: [
-                        { id: "be_rm", name: "RM", img: "./assets/bts/be/standard/rm.jpg" },
-                        { id: "be_jin", name: "Jin", img: "./assets/bts/be/standard/jin.jpg" },
-                        { id: "be_suga", name: "Suga", img: "./assets/bts/be/standard/suga.jpg" },
-                        { id: "be_jhope", name: "J-Hope", img: "./assets/bts/be/standard/jhope.jpg" },
-                        { id: "be_jimin", name: "Jimin", img: "./assets/bts/be/standard/jimin.jpg" },
-                        { id: "be_v", name: "V", img: "./assets/bts/be/standard/v.jpg" },
-                        { id: "be_jk", name: "JK", img: "./assets/bts/be/standard/jk.jpg" }
+                        { id: "be_rm", name: "RM", img: "./assets/bts/be/essential/rm.jpg" },
+                        { id: "be_jin", name: "Jin", img: "./assets/bts/be/essential/jin.jpg" },
+                        { id: "be_suga", name: "Suga", img: "./assets/bts/be/essential/suga.jpg" },
+                        { id: "be_jhope", name: "J-Hope", img: "./assets/bts/be/essential/jhope.jpg" },
+                        { id: "be_jimin", name: "Jimin", img: "./assets/bts/be/essential/jimin.jpg" },
+                        { id: "be_v", name: "V", img: "./assets/bts/be/essential/v.jpg" },
+                        { id: "be_jk", name: "JK", img: "./assets/bts/be/essential/jk.jpg" }
+                    ]
+                },
+                {
+                    subname: "Essential V2",
+                    members: [
+                        { id: "be_rm", name: "RM", img: "./assets/bts/be/essentialv2/rm.jpg" },
+                        { id: "be_jin", name: "Jin", img: "./assets/bts/be/essentialv2/jin.jpg" },
+                        { id: "be_suga", name: "Suga", img: "./assets/bts/be/essentialv2/suga.jpg" },
+                        { id: "be_jhope", name: "J-Hope", img: "./assets/bts/be/essentialv2/jhope.jpg" },
+                        { id: "be_jimin", name: "Jimin", img: "./assets/bts/be/essentialv2/jimin.jpg" },
+                        { id: "be_v", name: "V", img: "./assets/bts/be/essentialv2/v.jpg" },
+                        { id: "be_jk", name: "JK", img: "./assets/bts/be/essentialv2/jk.jpg" }
                     ]
                 }
             ]
@@ -300,13 +311,13 @@ const groupsData = {
             versions: [
                 {
                     subname: "Cream",
-                    members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"].map(m => ({
+                    members: ["RM", "Jin", "Suga", "JHope", "Jimin", "V", "JK"].map(m => ({
                         id: `butter_c_${m.toLowerCase()}`, name: m, img: `./assets/bts/butter/cream/${m.toLowerCase()}.jpg`
                     }))
                 },
                 {
                     subname: "Peaches",
-                    members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"].map(m => ({
+                    members: ["RM", "Jin", "Suga", "JHope", "Jimin", "V", "JK"].map(m => ({
                         id: `butter_p_${m.toLowerCase()}`, name: m, img: `./assets/bts/butter/peaches/${m.toLowerCase()}.jpg`
                     }))
                 }
@@ -318,13 +329,13 @@ const groupsData = {
             versions: [
                 {
                     subname: "Standard",
-                    members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"].map(m => ({
+                    members: ["RM", "Jin", "Suga", "JHope", "Jimin", "V", "JK"].map(m => ({
                         id: `proof_st_${m.toLowerCase()}`, name: m, img: `./assets/bts/proof/standard/${m.toLowerCase()}.jpg`
                     }))
                 },
                 {
                     subname: "Compact",
-                    members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"].map(m => ({
+                    members: ["RM", "Jin", "Suga", "JHope", "Jimin", "V", "JK"].map(m => ({
                         id: `proof_cp_${m.toLowerCase()}`, name: m, img: `./assets/bts/proof/compact/${m.toLowerCase()}.jpg`
                     }))
                 }
