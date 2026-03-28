@@ -1,37 +1,98 @@
 const groupsData = {
     bts: [
-        {
-            album: "ARIRANG",
-            year: "2026",
-            versions: [
-                {
-                    subname: "Rooted in Korea",
-                    members: [
-                        { id: "arirang_rik_rm", name: "RM", img: "URL_AQUÍ" },
-                        { id: "arirang_rik_jin", name: "Jin", img: "URL_AQUÍ" },
-                        { id: "arirang_rik_suga", name: "Suga", img: "URL_AQUÍ" },
-                        { id: "arirang_rik_jhope", name: "J-Hope", img: "URL_AQUÍ" },
-                        { id: "arirang_rik_jimin", name: "Jimin", img: "URL_AQUÍ" },
-                        { id: "arirang_rik_v", name: "V", img: "URL_AQUÍ" },
-                        { id: "arirang_rik_jk", name: "JK", img: "URL_AQUÍ" }
-                    ]
-                },
-                {
-                    subname: "Living Legend",
-                    members: [
-                        { id: "arirang_ll_rm", name: "RM", img: "URL_AQUÍ" },
-                        { id: "arirang_ll_jin", name: "Jin", img: "URL_AQUÍ" },
-                        { id: "arirang_ll_suga", name: "Suga", img: "URL_AQUÍ" },
-                        { id: "arirang_ll_jhope", name: "J-Hope", img: "URL_AQUÍ" },
-                        { id: "arirang_ll_jimin", name: "Jimin", img: "URL_AQUÍ" },
-                        { id: "arirang_ll_v", name: "V", img: "URL_AQUÍ" },
-                        { id: "arirang_ll_jk", name: "JK", img: "URL_AQUÍ" }
-                    ]
-                }
-                // Puedes seguir añadiendo versiones aquí siguiendo el mismo formato
-            ]
-        }
-    ],
+    {
+        album: "ARIRANG",
+        year: "2026",
+        versions: [
+            {
+                subname: "Rooted in Korea",
+                members: [
+                    { id: "arirang_rik_rm", name: "RM", img: "URL_AQUÍ" },
+                    { id: "arirang_rik_jin", name: "Jin", img: "URL_AQUÍ" },
+                    { id: "arirang_rik_suga", name: "Suga", img: "URL_AQUÍ" },
+                    { id: "arirang_rik_jhope", name: "J-Hope", img: "URL_AQUÍ" },
+                    { id: "arirang_rik_jimin", name: "Jimin", img: "URL_AQUÍ" },
+                    { id: "arirang_rik_v", name: "V", img: "URL_AQUÍ" },
+                    { id: "arirang_rik_jk", name: "JK", img: "URL_AQUÍ" }
+                ]
+            },
+            {
+                subname: "Rooted in Korea (Target Exclusive)",
+                members: [
+                    { id: "arirang_rikt_rm", name: "RM", img: "URL_AQUÍ" },
+                    { id: "arirang_rikt_jin", name: "Jin", img: "URL_AQUÍ" },
+                    { id: "arirang_rikt_suga", name: "Suga", img: "URL_AQUÍ" },
+                    { id: "arirang_rikt_jhope", name: "J-Hope", img: "URL_AQUÍ" },
+                    { id: "arirang_rikt_jimin", name: "Jimin", img: "URL_AQUÍ" },
+                    { id: "arirang_rikt_v", name: "V", img: "URL_AQUÍ" },
+                    { id: "arirang_rikt_jk", name: "JK", img: "URL_AQUÍ" }
+                ]
+            },
+            {
+                subname: "Rooted in Music",
+                members: [
+                    { id: "arirang_rim_rm", name: "RM", img: "URL_AQUÍ" },
+                    { id: "arirang_rim_jin", name: "Jin", img: "URL_AQUÍ" },
+                    { id: "arirang_rim_suga", name: "Suga", img: "URL_AQUÍ" },
+                    { id: "arirang_rim_jhope", name: "J-Hope", img: "URL_AQUÍ" },
+                    { id: "arirang_rim_jimin", name: "Jimin", img: "URL_AQUÍ" },
+                    { id: "arirang_rim_v", name: "V", img: "URL_AQUÍ" },
+                    { id: "arirang_rim_jk", name: "JK", img: "URL_AQUÍ" }
+                ]
+            },
+            {
+                subname: "Rooted in Music (Target Exclusive)",
+                members: [
+                    { id: "arirang_rimt_rm", name: "RM", img: "URL_AQUÍ" },
+                    { id: "arirang_rimt_jin", name: "Jin", img: "URL_AQUÍ" },
+                    { id: "arirang_rimt_suga", name: "Suga", img: "URL_AQUÍ" },
+                    { id: "arirang_rimt_jhope", name: "J-Hope", img: "URL_AQUÍ" },
+                    { id: "arirang_rimt_jimin", name: "Jimin", img: "URL_AQUÍ" },
+                    { id: "arirang_rimt_v", name: "V", img: "URL_AQUÍ" },
+                    { id: "arirang_rimt_jk", name: "JK", img: "URL_AQUÍ" }
+                ]
+            },
+            {
+                subname: "Living Legend",
+                members: [
+                    { id: "arirang_ll_rm", name: "RM", img: "URL_AQUÍ" },
+                    { id: "arirang_ll_jin", name: "Jin", img: "URL_AQUÍ" },
+                    { id: "arirang_ll_suga", name: "Suga", img: "URL_AQUÍ" },
+                    { id: "arirang_ll_jhope", name: "J-Hope", img: "URL_AQUÍ" },
+                    { id: "arirang_ll_jimin", name: "Jimin", img: "URL_AQUÍ" },
+                    { id: "arirang_ll_v", name: "V", img: "URL_AQUÍ" },
+                    { id: "arirang_ll_jk", name: "JK", img: "URL_AQUÍ" }
+                ]
+            },
+            {
+                subname: "Deluxe Vinyl",
+                members: [
+                    { id: "arirang_vinyl_rm", name: "RM", img: "URL_AQUÍ" },
+                    { id: "arirang_vinyl_jin", name: "Jin", img: "URL_AQUÍ" },
+                    { id: "arirang_vinyl_suga", name: "Suga", img: "URL_AQUÍ" },
+                    { id: "arirang_vinyl_jhope", name: "J-Hope", img: "URL_AQUÍ" },
+                    { id: "arirang_vinyl_jimin", name: "Jimin", img: "URL_AQUÍ" },
+                    { id: "arirang_vinyl_v", name: "V", img: "URL_AQUÍ" },
+                    { id: "arirang_vinyl_jk", name: "JK", img: "URL_AQUÍ" }
+                ]
+            },
+            {
+                subname: "Weverse Albums Version",
+                members: [
+                    { id: "arirang_wev_rm", name: "RM", img: "URL_AQUÍ" },
+                    { id: "arirang_wev_jin", name: "Jin", img: "URL_AQUÍ" },
+                    { id: "arirang_wev_suga", name: "Suga", img: "URL_AQUÍ" },
+                    { id: "arirang_wev_jhope", name: "J-Hope", img: "URL_AQUÍ" },
+                    { id: "arirang_wev_jimin", name: "Jimin", img: "URL_AQUÍ" },
+                    { id: "arirang_wev_v", name: "V", img: "URL_AQUÍ" },
+                    { id: "arirang_wev_jk", name: "JK", img: "URL_AQUÍ" },
+                    { id: "arirang_wev_unit1", name: "Unit 1", img: "URL_AQUÍ" },
+                    { id: "arirang_wev_unit2", name: "Unit 2", img: "URL_AQUÍ" }
+                ]
+            }
+        ]
+    }
+],
     twice: [
         { 
             name: "READY TO BE", 
@@ -180,47 +241,42 @@ function renderCollection() {
     const albums = groupsData[currentArtist] || [];
 
     albums.forEach(album => {
-        // Recorremos las versiones (ej. Rooted in Korea, Living Legend)
         album.versions.forEach(version => {
-            
-            // 1. Crear el Título de la Versión
             const section = document.createElement('div');
             section.className = 'era-section';
             
-            // Calculamos cuántas tienes de esta versión específica
+            // Solo contamos las que "HAVE" (Status 1)
             const ownedInVersion = version.members.filter(m => (userProgress[m.id] || 0) === 1).length;
 
             section.innerHTML = `
                 <div class="era-title">
-                    ${album.album} — ${version.subname} <span style="color:#D6A6A6">${ownedInVersion}/${version.members.length}</span>
+                    ${album.album} — ${version.subname} <span class="version-counter">${ownedInVersion}/${version.members.length}</span>
                 </div>
                 <div class="pc-grid"></div>
             `;
 
             const pcGrid = section.querySelector('.pc-grid');
 
-            // 2. Filtrado y Renderizado de Cards
             version.members.forEach(member => {
                 const status = userProgress[member.id] || 0;
 
-                // Aplicar filtros (Miembro y Estado)
+                // Filtros
                 const matchesMember = selectedMembers.has('todos') || selectedMembers.has(member.name);
                 let matchesQuantity = true;
                 if (quantityFilter === '1') matchesQuantity = status === 1;
                 if (quantityFilter === '2') matchesQuantity = status === 2;
-                if (quantityFilter === '4') matchesQuantity = status === 4;
 
                 if (!matchesMember || !matchesQuantity) return;
 
                 const pc = document.createElement('div');
+                // Si es status 0, no le ponemos clase de borde
                 pc.className = `photocard status-${status}`;
-                pc.style.backgroundColor = status === 0 ? '#f0f0f0' : '#ffffff';
                 
                 pc.innerHTML = `
                     <img src="${member.img}" 
-                        class="pc-image" 
-                        alt="${member.name}" 
-                        onerror="this.onerror=null; this.src='https://placehold.co/200x300?text=${member.name}';">
+                         class="pc-image" 
+                         alt="${member.name}" 
+                         onerror="this.src='https://placehold.co/200x300?text=${member.name}';">
                 `;
 
                 // --- TUS EVENTOS DE LONG PRESS (Mantenidos) ---
@@ -393,7 +449,7 @@ function updateTradeView() {
             <p class="view-subtitle">Gestiona tus cartas disponibles para intercambio.</p>
         </div>
         <div class="app-content">
-            <div class="pc-grid" id="trade-grid"></div>
+            <div class="trade-grid" id="trade-grid"></div>
         </div>
     `;
 
@@ -410,31 +466,27 @@ function updateTradeView() {
                     hasTrade = true;
                     const count = window.userReps[member.id] || 1;
                     
-                    const pc = document.createElement('div');
-                    pc.className = 'photocard status-4 trade-item';
-                    pc.innerHTML = `
-                        <div class="pc-image-container">
-                            <img src="${member.img}" class="pc-image" onerror="this.src='https://placehold.co/200x300?text=${member.name}';">
-                            <div class="reps-badge">${count}</div>
+                    const card = document.createElement('div');
+                    card.className = 'trade-card-modern';
+                    card.innerHTML = `
+                        <div class="trade-image-wrapper">
+                            <img src="${member.img}" class="trade-img" onerror="this.src='https://placehold.co/200x300?text=${member.name}';">
+                            <div class="trade-count-overlay">${count}</div>
                         </div>
-                        <div class="trade-controls">
-                            <button onclick="changeRepCount('${member.id}', -1)">-</button>
-                            <span>${member.name}</span>
-                            <button onclick="changeRepCount('${member.id}', 1)">+</button>
+                        <div class="trade-info-bar">
+                            <button class="count-btn" onclick="changeRepCount('${member.id}', -1)">-</button>
+                            <span class="trade-member-name">${member.name}</span>
+                            <button class="count-btn" onclick="changeRepCount('${member.id}', 1)">+</button>
                         </div>
                     `;
-                    tradeGrid.appendChild(pc);
+                    tradeGrid.appendChild(card);
                 }
             });
         });
     });
 
     if (!hasTrade) {
-        tradeGrid.innerHTML = `
-            <div style="grid-column: 1 / -1; text-align:center; padding:40px; color:#D6A6A6;">
-                <i class="fa-solid fa-right-left" style="font-size:40px; opacity:0.3; margin-bottom:15px;"></i>
-                <p>No hay cartas marcadas para trade.<br><small>Mantén presionada una carta en tu colección para cambiarla a rosa.</small></p>
-            </div>`;
+        tradeGrid.innerHTML = `<div class="empty-state">No hay cartas marcadas para trade.</div>`;
     }
 }
 

@@ -432,12 +432,6 @@ body {
     display: block;
 }
 
-/* Estado 0: NO HAVE (Gris opacado) */
-.photocard.status-0 {
-    border: 1px solid #eee;
-    filter: grayscale(100%) opacity(0.5);
-}
-
 /* Estado 1: HAVE (Borde verde) */
 .photocard.status-1 {
     border: 3px solid #4CAF50 !important;
@@ -711,8 +705,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 /*TRADE*/
 #trade-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 columnas igual que en colección */
-    gap: 15px;
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas para que se vean grandes y hermosas */
+    gap: 20px;
     padding: 15px;
 }
 
@@ -770,4 +764,82 @@ input:checked + .slider:before { transform: translateX(20px); }
     justify-content: center;
     font-weight: bold;
     border: 2px solid white;
+}
+
+.trade-card-modern {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    border: 2px solid #ff85a1; /* El rosa de Trade */
+    transition: transform 0.2s;
+}
+
+/* Contenedor de Imagen */
+.trade-image-wrapper {
+    position: relative;
+    aspect-ratio: 2/3;
+    background: #fdfdfd;
+}
+
+.trade-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Badge de cantidad tipo Notificación */
+.trade-count-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff85a1;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border: 2px solid white;
+}
+
+/* Barra de controles inferior */
+.trade-info-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background: white;
+}
+
+.trade-member-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.count-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    background: #f8f9fa;
+    color: #ff85a1;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.count-btn:active {
+    background: #ff85a1;
+    color: white;
 }
