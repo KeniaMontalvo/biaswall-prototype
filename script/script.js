@@ -1,110 +1,3 @@
-const groupsData = {
-    bts: [
-    {
-        album: "ARIRANG",
-        year: "2026",
-        versions: [
-            {
-                subname: "Rooted in Korea",
-                members: [
-                    { id: "arirang_rik_rm", name: "RM", img: "URL_AQUÍ" },
-                    { id: "arirang_rik_jin", name: "Jin", img: "URL_AQUÍ" },
-                    { id: "arirang_rik_suga", name: "Suga", img: "URL_AQUÍ" },
-                    { id: "arirang_rik_jhope", name: "J-Hope", img: "URL_AQUÍ" },
-                    { id: "arirang_rik_jimin", name: "Jimin", img: "URL_AQUÍ" },
-                    { id: "arirang_rik_v", name: "V", img: "URL_AQUÍ" },
-                    { id: "arirang_rik_jk", name: "JK", img: "URL_AQUÍ" }
-                ]
-            },
-            {
-                subname: "Rooted in Korea (Target Exclusive)",
-                members: [
-                    { id: "arirang_rikt_rm", name: "RM", img: "URL_AQUÍ" },
-                    { id: "arirang_rikt_jin", name: "Jin", img: "URL_AQUÍ" },
-                    { id: "arirang_rikt_suga", name: "Suga", img: "URL_AQUÍ" },
-                    { id: "arirang_rikt_jhope", name: "J-Hope", img: "URL_AQUÍ" },
-                    { id: "arirang_rikt_jimin", name: "Jimin", img: "URL_AQUÍ" },
-                    { id: "arirang_rikt_v", name: "V", img: "URL_AQUÍ" },
-                    { id: "arirang_rikt_jk", name: "JK", img: "URL_AQUÍ" }
-                ]
-            },
-            {
-                subname: "Rooted in Music",
-                members: [
-                    { id: "arirang_rim_rm", name: "RM", img: "URL_AQUÍ" },
-                    { id: "arirang_rim_jin", name: "Jin", img: "URL_AQUÍ" },
-                    { id: "arirang_rim_suga", name: "Suga", img: "URL_AQUÍ" },
-                    { id: "arirang_rim_jhope", name: "J-Hope", img: "URL_AQUÍ" },
-                    { id: "arirang_rim_jimin", name: "Jimin", img: "URL_AQUÍ" },
-                    { id: "arirang_rim_v", name: "V", img: "URL_AQUÍ" },
-                    { id: "arirang_rim_jk", name: "JK", img: "URL_AQUÍ" }
-                ]
-            },
-            {
-                subname: "Rooted in Music (Target Exclusive)",
-                members: [
-                    { id: "arirang_rimt_rm", name: "RM", img: "URL_AQUÍ" },
-                    { id: "arirang_rimt_jin", name: "Jin", img: "URL_AQUÍ" },
-                    { id: "arirang_rimt_suga", name: "Suga", img: "URL_AQUÍ" },
-                    { id: "arirang_rimt_jhope", name: "J-Hope", img: "URL_AQUÍ" },
-                    { id: "arirang_rimt_jimin", name: "Jimin", img: "URL_AQUÍ" },
-                    { id: "arirang_rimt_v", name: "V", img: "URL_AQUÍ" },
-                    { id: "arirang_rimt_jk", name: "JK", img: "URL_AQUÍ" }
-                ]
-            },
-            {
-                subname: "Living Legend",
-                members: [
-                    { id: "arirang_ll_rm", name: "RM", img: "URL_AQUÍ" },
-                    { id: "arirang_ll_jin", name: "Jin", img: "URL_AQUÍ" },
-                    { id: "arirang_ll_suga", name: "Suga", img: "URL_AQUÍ" },
-                    { id: "arirang_ll_jhope", name: "J-Hope", img: "URL_AQUÍ" },
-                    { id: "arirang_ll_jimin", name: "Jimin", img: "URL_AQUÍ" },
-                    { id: "arirang_ll_v", name: "V", img: "URL_AQUÍ" },
-                    { id: "arirang_ll_jk", name: "JK", img: "URL_AQUÍ" }
-                ]
-            },
-            {
-                subname: "Deluxe Vinyl",
-                members: [
-                    { id: "arirang_vinyl_rm", name: "RM", img: "URL_AQUÍ" },
-                    { id: "arirang_vinyl_jin", name: "Jin", img: "URL_AQUÍ" },
-                    { id: "arirang_vinyl_suga", name: "Suga", img: "URL_AQUÍ" },
-                    { id: "arirang_vinyl_jhope", name: "J-Hope", img: "URL_AQUÍ" },
-                    { id: "arirang_vinyl_jimin", name: "Jimin", img: "URL_AQUÍ" },
-                    { id: "arirang_vinyl_v", name: "V", img: "URL_AQUÍ" },
-                    { id: "arirang_vinyl_jk", name: "JK", img: "URL_AQUÍ" }
-                ]
-            },
-            {
-                subname: "Weverse Albums Version",
-                members: [
-                    { id: "arirang_wev_rm", name: "RM", img: "URL_AQUÍ" },
-                    { id: "arirang_wev_jin", name: "Jin", img: "URL_AQUÍ" },
-                    { id: "arirang_wev_suga", name: "Suga", img: "URL_AQUÍ" },
-                    { id: "arirang_wev_jhope", name: "J-Hope", img: "URL_AQUÍ" },
-                    { id: "arirang_wev_jimin", name: "Jimin", img: "URL_AQUÍ" },
-                    { id: "arirang_wev_v", name: "V", img: "URL_AQUÍ" },
-                    { id: "arirang_wev_jk", name: "JK", img: "URL_AQUÍ" },
-                    { id: "arirang_wev_unit1", name: "Unit 1", img: "URL_AQUÍ" },
-                    { id: "arirang_wev_unit2", name: "Unit 2", img: "URL_AQUÍ" }
-                ]
-            }
-        ]
-    }
-],
-    twice: [
-        { 
-            name: "READY TO BE", 
-            year: "2023", 
-            members: [
-                { id: "nayeon_rtb", name: "Nayeon", type: "album", img: "assets/twice/rtb/nayeon.jpg" },
-                { id: "momo_rtb", name: "Momo", type: "album", img: "assets/twice/rtb/momo.jpg" }
-                // Agregaremos el resto después
-            ] 
-        }
-    ]
-};
 
 // Variable global para saber qué artista estamos viendo
 let currentArtist = 'bts';
@@ -348,6 +241,28 @@ function handleTap(memberId) {
 function resetCard(id) {
     userProgress[id] = 0; // Resetear a estado "No tengo"
     renderCollection();
+}
+
+function createPCElement(member) {
+    const pc = document.createElement('div');
+    pc.className = 'photocard status-0'; // Estado inicial: Pending
+    
+    // Si no hay URL, mostramos el texto del nombre
+    if (!member.img || member.img === "URL_AQUÍ") {
+        pc.innerHTML = `
+            <div class="pc-placeholder">
+                <span>${member.name}</span>
+            </div>
+        `;
+    } else {
+        pc.innerHTML = `
+            <div class="pc-image-container">
+                <img src="${member.img}" alt="${member.name}" class="pc-image">
+            </div>
+        `;
+    }
+    
+    return pc;
 }
 
 //Estadísticas

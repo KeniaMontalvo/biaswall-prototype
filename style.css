@@ -386,7 +386,7 @@ body {
 /* PHOTOCARD */
 .photocard {
     aspect-ratio: 2/3;
-    background: #e0e0e0;
+    background: transparent;
     border-radius: 12px;
     border: 3px solid transparent;
     position: relative;
@@ -432,31 +432,38 @@ body {
     display: block;
 }
 
+/* Estado 0: PENDING (Totalmente limpio) */
+.photocard.status-0 {
+    border: 1px dashed var(--sand); /* Borde punteado muy fino para la "existencia" */
+    opacity: 0.3;
+}
+
 /* Estado 1: HAVE (Borde verde) */
 .photocard.status-1 {
-    border: 3px solid #4CAF50 !important;
-    filter: none;
+    border: 2px solid rgba(139, 168, 136, 0.6) !important; /* Sage con transparencia */
+    box-shadow: 0 4px 12px rgba(139, 168, 136, 0.15); /* Sombra muy sutil */
+    opacity: 1;
 }
 
 /* Estado 2: ON THE WAY (Borde amarillo/ámbar) */
 .photocard.status-2 {
-    border: 3px solid #FFC107;
-    filter: none;
+    border: 2px solid rgba(232, 225, 208, 0.8);
+    box-shadow: 0 4px 12px rgba(232, 225, 208, 0.2);
+    opacity: 1;
 }
 
 /* Estado 3: DON'T COLLECT (Rojo y muy transparente) */
 .photocard.status-3 {
-    border: 3px solid #F44336;
-    background-color: #fff;
-    filter: none;
+    border: 2px solid rgba(212, 132, 122, 0.5);
+    box-shadow: 0 4px 12px rgba(212, 132, 122, 0.15);
+    opacity: 1;
 }
 
 /* Estado 4: TRADE (Rosa y muy transparente) */
 .photocard.status-4 {
-    border: 3px solid #FF69B4;
-    background-color: #fff;
-    filter: none;
-    box-shadow: 0 0 15px rgba(255, 105, 180, 0.4);
+    border: 2px solid rgba(255, 105, 180, 0.4);
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1);
+    opacity: 1;
 }
 
 .photocard.not-owned { 
@@ -475,8 +482,9 @@ body {
 }
 
 .pc-initial { 
-    font-size: 18px; 
-    color: #B0A69D; 
+    font-size: 16px; 
+    color: var(--taupe); /* Usando tu token de color suave */
+    font-weight: 300;
 }
 
 .pc-name { 
@@ -489,6 +497,27 @@ body {
     text-align: center;
     padding: 4px 0;
     font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Contenedor cuando no hay foto aún */
+.pc-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--warm-white); /* Color crema de tu paleta */
+    border: 1px dashed var(--sand); /* Borde sutil para indicar que falta algo */
+    border-radius: 12px;
+}
+
+.pc-placeholder span {
+    font-family: var(--font-display); /* Usando tu fuente elegante */
+    font-size: 20px;
+    color: var(--taupe);
+    letter-spacing: 2px;
+    opacity: 0.6;
     text-transform: uppercase;
 }
 
