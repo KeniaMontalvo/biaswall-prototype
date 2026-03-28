@@ -358,7 +358,9 @@ function updateStats() {
 
 function switchView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-    document.getElementById('view-' + viewId).style.display = 'block';
+    
+    const currentView = document.getElementById('view-' + viewId);
+    if (currentView) currentView.style.display = 'block';
     
     //Mostrar la barra de colores solo en colección
     const legend = document.querySelector('.footer-legend');
@@ -366,12 +368,70 @@ function switchView(viewId) {
             legend.style.display = (viewId === 'coleccion') ? 'flex' : 'none';
         }
 
+    if(viewId === 'stats') updateStats();
+    if(viewId === 'trade') updateTradeView();
+
     // Actualizar nav bar
     document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.querySelector(`.nav-item[onclick="switchView('${viewId}')"]`);
+    const activeBtn = document.querySelector(`.nav-item[onclick*="${viewId}"]`);
     if (activeBtn) activeBtn.classList.add('active');
 
-    if(viewId === 'view-stats') updateStats();
+}
+
+function updateTradeView() {
+    const tradeContainer = document.getElementById('view-trade');
+    if (!tradeContainer) return;
+
+    // Limpiamos y preparamos la estructura
+    tradeContainer.innerHTML = `
+        <div class="stats-header">
+            <h1 class="view-title">My repeated</h1>
+            <p class="view-subtitle">These are the cards you have marked for trading.</p>
+        </div>
+        <div class="app-content">
+            <div class="pc-grid" id="trade-grid"></div>
+        </div>
+    `;
+
+    const tradeGrid = document.getElementById('trade-grid');
+    let hasTrade = false;
+
+    // USAMOS EL ARTISTA ACTUAL (BTS o Twice)
+    const currentAlbums = groupsData[currentArtist] || [];
+
+    currentAlbums.forEach(album => {
+        album.versions.forEach(version => {
+            version.members.forEach(member => {
+                const status = userProgress[member.id] || 0;
+
+                // SI EL STATUS ES 4 (EL ROSA QUE CAMBIASTE)
+                if (status === 4) {
+                    hasTrade = true;
+                    const pc = document.createElement('div');
+                    pc.className = 'photocard status-4';
+                    // Añadimos un estilo extra aquí mismo para asegurar que se vea
+                    pc.style.backgroundColor = 'white'; 
+                    
+                    pc.innerHTML = `
+                        <div class="pc-image-container" style="position:relative;">
+                            <img src="${member.img}" class="pc-image" onerror="this.src='https://placehold.co/200x300?text=${member.name}';">
+                            <div class="pc-name" style="padding: 5px; font-size: 12px; text-align: center;">${member.name}</div>
+                        </div>
+                    `;
+                    tradeGrid.appendChild(pc);
+                }
+            });
+        });
+    });
+
+    // Si no hay ninguna rosa, mostramos el mensaje de vacío
+    if (!hasTrade) {
+        tradeGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align:center; padding:40px; color:#D6A6A6;">
+                <i class="fa-solid fa-box-open" style="font-size:40px; margin-bottom:15px;"></i>
+                <p>You don't have any cards marked for trade yet.</p>
+            </div>`;
+    }
 }
 
 // Bloqueo de menú contextual

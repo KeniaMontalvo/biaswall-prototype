@@ -65,7 +65,6 @@
                     <button class="filter-btn active" onclick="setQuantityFilter('todos', this)">All</button>
                     <button class="filter-btn" onclick="setQuantityFilter('1', this)">Have</button>
                     <button class="filter-btn" onclick="setQuantityFilter('2', this)">On the Way</button>
-                    <button class="filter-btn" onclick="setQuantityFilter('4', this)">Trade</button>
                 </div>
             </div>
 
@@ -115,11 +114,7 @@
         </section>
 
         <!-- INTERCAMBIO -->
-        <section id="view-intercambio" class="view" style="display: none;">
-                <div class="stats-header">
-                    <h2 class="view-title">Código de Intercambio</h2>
-                    <p>Próximamente...</p>
-                </div>
+        <section id="view-trade" class="view" style="display: none;">
         </section>
 
         <!-- AJUSTES -->
@@ -198,8 +193,8 @@
             <i class="fa-solid fa-chart-pie"></i>
             <span>Stats</span>
         </button>
-        <button class="nav-item" onclick="switchView('intercambio')">
-            <i class="fa-solid fa-qrcode"></i>
+        <button class="nav-item" onclick="switchView('trade')">
+            <i class="fa-solid fa-right-left"></i>
             <span>Trade</span>
         </button>
         <button class="nav-item" onclick="switchView('ajustes')">
