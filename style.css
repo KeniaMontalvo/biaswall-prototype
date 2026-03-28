@@ -18,7 +18,7 @@
 body {
     margin: 0;
     font-family: var(--font-body);
-    background-color: #f0f0f0;
+    background-color: #ffffff;
     display: flex;
     justify-content: center;
 }
@@ -386,14 +386,15 @@ body {
 /* PHOTOCARD */
 .photocard {
     aspect-ratio: 2/3;
-    background: transparent;
+    background: #ffffff;
     border-radius: 12px;
-    border: 3px solid transparent;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     position: relative;
     display: flex;
-    overflow: hidden;
+    overflow: visible;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #f0f0f0;
     
     /* BLOQUEO DE GESTOS NATIVOS */
     -webkit-touch-callout: none; /* Bloquea el menú nativo en iOS */
@@ -406,6 +407,25 @@ body {
     user-select: none;            /* Bloquea la selección estándar */
     touch-action: none;
     -webkit-tap-highlight-color: transparent;
+}
+
+/* el Pseudo-elemento para el icono base */
+.photocard::after {
+    content: '';
+    position: absolute;
+    top: -5px; /* Ajustado para que no se vea "salido" feo */
+    right: -5px; 
+    width: 22px; 
+    height: 22px;
+    background-size: 70%; /* La hojita un poco más pequeña que el círculo */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #ffffff; /* Fondo blanco para que la hoja resalte */
+    border-radius: 50%; /* Círculo perfecto para evitar bordes cuadrados */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sombra para dar profundidad */
+    opacity: 0; 
+    transition: all 0.2s ease;
+    z-index: 20; 
 }
 
 .pc-image {
@@ -430,6 +450,9 @@ body {
     height: 100%;
     object-fit: cover; /* Para que la photocard llene todo el espacio sin deformarse */
     display: block;
+    border-radius: 12px;
+    clip-path: inset(0 round 12px); 
+    z-index: 1;
 }
 
 /* Estado 0: PENDING (Totalmente limpio) */
@@ -464,6 +487,25 @@ body {
     border: 2px solid rgba(255, 105, 180, 0.4);
     box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1);
     opacity: 1;
+}
+
+/* ESTADO 2: ON THE WAY (Hoja Verde Sage) */
+.photocard.status-2::after {
+    opacity: 1;
+    /* SVG de una hoja más realista y estilizada */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238BA888'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z' /%3E%3C/svg%3E");
+}
+
+/* ESTADO 3: DROP / PRIORIDAD (Hoja Rosa Intenso de tu paleta) */
+.photocard.status-3::after {
+    opacity: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23D4847A'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z' /%3E%3C/svg%3E");
+}
+
+/* ESTADO 4: TRADE (Hoja Rosa Pastel - Setup Color) */
+.photocard.status-4::after {
+    opacity: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23F7D1D1'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z' /%3E%3C/svg%3E");
 }
 
 .photocard.not-owned { 

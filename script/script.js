@@ -138,7 +138,9 @@ function renderCollection() {
     albums.forEach(album => {
         album.versions.forEach(version => {
 
-            if (version.is_pob && !showPOBs) return;
+            if (version.is_pob && !showPOBs) {
+                return; 
+            }
 
             const section = document.createElement('div');
             section.className = 'era-section';
@@ -169,7 +171,8 @@ function renderCollection() {
                 const pc = document.createElement('div');
                 // Si es status 0, no le ponemos clase de borde
                 pc.className = `photocard status-${status}`;
-                
+                pc.id = `pc-${member.id}`;
+
                 pc.innerHTML = `
                     <img src="${member.img}" 
                          class="pc-image" 
@@ -224,6 +227,16 @@ function renderCollection() {
     });
 }
 
+function updateSingleCardUI(memberId, newStatus) {
+    const pcElement = document.getElementById(`pc-${memberId}`);
+    if (pcElement) {
+        // 1. Removemos todas las clases de status anteriores (0 a 4)
+        pcElement.classList.remove('status-0', 'status-1', 'status-2', 'status-3', 'status-4');
+        // 2. Añadimos la nueva clase
+        pcElement.classList.add(`status-${newStatus}`);
+    }
+}
+
 function handleTap(memberId) {
     // Obtenemos el estado actual o 0 si no existe
     let currentStatus = userProgress[memberId] || 0;
@@ -238,14 +251,16 @@ function handleTap(memberId) {
     // Guardar en LocalStorage para no perder cambios al recargar
     localStorage.setItem('userProgress', JSON.stringify(userProgress));
     
-    // Refrescamos la UI
-    renderCollection();
+    // Refrescamos
+    updateSingleCardUI(memberId, nextStatus);
+
     if (typeof updateStats === "function") updateStats();
 }
 
 function resetCard(id) {
-    userProgress[id] = 0; // Resetear a estado "No tengo"
-    renderCollection();
+    userProgress[id] = 0;
+    updateSingleCardUI(id, 0); 
+    if (typeof updateStats === "function") updateStats();
 }
 
 function createPCElement(member) {
