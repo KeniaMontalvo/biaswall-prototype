@@ -1,916 +1,663 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap');
 
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
 :root {
-    /* Tus Tokens de Color */
-    --cream: #FAF8F3;
-    --warm-white: #F5F2EA;
-    --sand: #E8E1D0;
-    --taupe: #C5B89A;
-    --deep-brown: #3D3028;
-    --accent-rose: #D4847A;
-    --accent-sage: #8BA888;
-    
-    /* Fuentes */
+    --white:       #ffffff;
+    --off-white:   #fafafa;
+    --surface:     #f5f3f0;
+    --border:      #ece9e4;
+    --border-mid:  #dbd6ce;
+    --text-main:   #2c2420;
+    --text-sub:    #9c9289;
+
+    /* Brand rose — controls & UI accents */
+    --rose:        #F7D1D1;
+    --rose-mid:    #e8b5b5;
+    --rose-deep:   #c9807a;
+
+    /* Leaf status colors (Leaves Garden palette) */
+    --leaf-wish:   #A8D4E6;   /* sky-blue  — Wishlist / Priority   */
+    --leaf-way:    #F9E4A0;   /* soft yellow — On the Way           */
+    --leaf-trade:  #F7D1D1;   /* pale rose   — Trade (Trade tab only) */
+
+    /* Sage for toggles */
+    --sage:        #8BA888;
+    --sage-light:  #d4e6d3;
+
     --font-display: 'DM Serif Display', serif;
-    --font-body: 'DM Sans', sans-serif;
+    --font-body:    'DM Sans', sans-serif;
+
+    --radius-card: 12px;
+    --radius-ui:   10px;
+    --shadow-sm:   0 1px 4px rgba(0,0,0,0.06);
+    --shadow-md:   0 4px 14px rgba(0,0,0,0.08);
 }
 
-body {
-    margin: 0;
+/* ============================================================
+   RESET + BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html  { height: 100%; overflow: hidden; }
+body  {
+    margin: 0; padding: 0;
     font-family: var(--font-body);
-    background-color: #ffffff;
+    background: var(--border);
     display: flex;
     justify-content: center;
+    align-items: flex-start;
+    height: 100%;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* PANTALLA DE SELECCIÓN (ONBOARDING) */
+/* ============================================================
+   ONBOARDING
+   ============================================================ */
 .onboarding-view {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: var(--cream);
-    z-index: 1000; /* Por encima de todo */
-    display: flex;
-    flex-direction: column;
-    font-family: var(--font-body);
+    position: fixed; inset: 0;
+    background: var(--white);
+    z-index: 1000;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .onboarding-header {
-    padding: 30px 20px;
+    padding: 52px 24px 22px;
     text-align: center;
-    border-bottom: 1px solid var(--sand);
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+    position: sticky; top: 0; z-index: 2;
 }
 
-.onboarding-subtitle {
-    font-size: 14px;
-    color: var(--taupe);
-    margin-top: 10px;
-}
+.onboarding-subtitle { font-size: 13px; color: var(--text-sub); margin: 6px 0 0; }
 
 .artist-selection-list {
     flex: 1;
     overflow-y: auto;
-    padding: 20px;
+    padding: 20px 20px 48px;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Estilo de cada fila de artista */
 .artist-item {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    background: var(--warm-white);
-    border: 1px solid var(--sand);
-    border-radius: 12px;
-    margin-bottom: 12px;
-    transition: all 0.2s ease;
+    display: flex; align-items: center;
+    padding: 14px 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    gap: 14px;
+    transition: border-color .2s, background .2s;
 }
+.artist-item.enabled  { cursor: pointer; }
+.artist-item.enabled:active { background: #fff5f5; border-color: var(--rose-mid); }
+.artist-item.disabled { opacity: .45; cursor: not-allowed; }
 
-.artist-item.enabled { cursor: pointer; }
-.artist-item.enabled:hover { transform: translateY(-2px); border-color: var(--accent-sage); }
+.artist-item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.artist-name { font-weight: 700; color: var(--text-main); font-size: 15px; }
+.artist-meta { font-size: 11px; color: var(--text-sub); }
 
-/* Estados inhabilitados */
-.artist-item.disabled {
-    opacity: 0.6;
-    background-color: var(--sand);
-    cursor: not-allowed;
-}
-
-/* Iconos de artistas (circulares) */
 .artist-icon {
-    width: 45px; height: 45px;
-    border-radius: 50%;
-    background-color: var(--sand);
-    margin-right: 15px;
-    background-size: cover;
-    background-position: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--surface); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 800; letter-spacing: .3px;
 }
+.bts-icon   { background: #2e2b28; color: #fff; }
+.bts-icon::before   { content: "BTS"; }
+.twice-icon { background: #ff69b4; color: #fff; }
+.twice-icon::before { content: "TWICE"; font-size: 8px; }
+.txt-icon   { background: #aaa; }
 
-/* Placeholders para los iconos (úsalos mientras subes imágenes reales) */
-.bts-icon { background-color: #3D3834; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
-.bts-icon::before { content: "BTS"; }
-
-.twice-icon { background-color: #FF69B4; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
-.twice-icon::before { content: "TWICE"; }
-
-/* Iconos para los 'disabled' */
-.txt-icon, .enhypen-icon { background-color: #A0A0A0; }
-
-.artist-name { flex: 1; font-weight: bold; color: var(--deep-brown); }
+.text-mute { color: var(--text-sub); }
 
 .badge-soon {
-    font-size: 10px;
-    color: var(--accent-rose);
-    border: 1px solid var(--accent-rose);
-    padding: 2px 6px;
-    border-radius: 8px;
-    text-transform: uppercase;
+    font-size: 9px; font-weight: 700;
+    color: var(--rose-deep);
+    border: 1.5px solid var(--rose);
+    padding: 2px 8px; border-radius: 8px;
+    text-transform: uppercase; white-space: nowrap; flex-shrink: 0;
+    letter-spacing: .4px;
 }
+
+/* ============================================================
+   APP CONTAINER
+   ============================================================ */
+.app-container {
+    width: 100%; max-width: 430px;
+    height: 100dvh; height: 100vh;
+    background: var(--white);
+    color: var(--text-main);
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header {
+    padding: 14px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0; z-index: 20;
+}
+
+.logo {
+    font-family: var(--font-display);
+    font-size: 24px; font-weight: 600;
+    color: var(--text-main); margin: 0; line-height: 1;
+}
+.logo-accent { color: var(--rose-mid); font-weight: 300; font-style: italic; }
 
 .badge-artist {
-    background-color: var(--deep-brown);
-    color: var(--warm-white);
-    border: none;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    background: var(--text-main); color: var(--white);
+    border: none; padding: 5px 14px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    font-family: var(--font-body); letter-spacing: .3px;
+    transition: opacity .2s;
 }
-
-/* Efecto al tocar/clic */
-.badge-artist:active {
-    transform: scale(0.95);
-    opacity: 0.8;
-}
-
-/* Opcional: añadir un pequeño icono de flecha para indicar que regresa */
 .badge-artist::before {
-    content: "\f060"; /* Icono de flecha hacia la izquierda de FontAwesome */
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    font-size: 10px;
+    content: "\f060";
+    font-family: "Font Awesome 6 Free"; font-weight: 900;
+    font-size: 9px; opacity: .6;
+}
+.badge-artist:active { opacity: .75; }
+
+/* ============================================================
+   STICKY FILTER BAR
+   ============================================================ */
+.sticky-filter-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 18px 8px;
+    flex-shrink: 0; z-index: 15;
 }
 
-/*PÁGINA PRINCIPAL*/
+/* Search */
+.search-wrapper { position: relative; margin-bottom: 10px; }
 
-.app-container {
-    width: 100%;
-    max-width: 430px;
-    height: 100vh;
-    background-color: var(--cream);
-    color: var(--deep-brown);
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+.search-icon {
+    position: absolute; left: 11px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px; color: var(--text-sub); pointer-events: none;
 }
 
-/* HEADER */
-.header {
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--cream);
-    border-bottom: 1px solid var(--sand); /* Línea divisoria sutil */
-    z-index: 10;
+.search-input {
+    width: 100%; padding: 8px 34px 8px 32px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-ui);
+    font-family: var(--font-body); font-size: 13px;
+    color: var(--text-main); background: var(--off-white);
+    outline: none; transition: border-color .2s;
+    -webkit-appearance: none; appearance: none;
+}
+.search-input:focus { border-color: var(--rose-mid); background: var(--white); }
+.search-input::-webkit-search-cancel-button { display: none; }
+
+.search-clear {
+    position: absolute; right: 8px; top: 50%;
+    transform: translateY(-50%);
+    background: var(--border-mid); border: none; color: var(--text-sub);
+    width: 18px; height: 18px; border-radius: 50%;
+    font-size: 10px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 0;
 }
 
-.logo { 
-    font-family: var(--font-display);
-    font-size: 26px; 
-    font-weight: 600; 
-    color: #4A443F; 
-}
-
-.logo-accent { 
-    color: #D6A6A6; 
-    font-weight: 300; 
-    font-style: italic; 
-}
-
-.badge-artist { 
-    background: #3D3834; color: white; 
-    padding: 2px 12px; border-radius: 12px; font-size: 12px; 
-}
-
-/* NAVEGACIÓN INFERIOR */
-.bottom-nav {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background-color: var(--cream);
-    border-top: 1px solid var(--sand);
-    padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); /* Espacio para el dock de iPhone */
-    position: sticky;
-    bottom: 0;
-    z-index: 100;
-}
-
-.nav-item {
-    background: none;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    color: var(--taupe);
-    cursor: pointer;
-    flex: 1;
-    transition: all 0.3s ease;
-}
-
-.nav-item i {
-    font-size: 20px;
-}
-
-.nav-item span {
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Estado Activo */
-.nav-item.active {
-    color: var(--deep-brown);
-}
-
-.nav-item.active i {
-    transform: translateY(-2px); /* Un pequeño salto sutil */
-    color: var(--accent-rose); /* O el color que prefieras para destacar */
-}
-
-/* FILTROS Y SELECTOR */
-
-.filter-btn {
-    font-family: var(--font-body);
-    color: var(--deep-brown);
-    border: 1px solid var(--sand);
-    background: var(--warm-white);
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    flex: 1;
-    padding: 6px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-/* Solo para el estado activo de los filtros */
-.filter-btn.active {
-    background: var(--deep-brown);
-    color: var(--warm-white);
-    border-color: var(--deep-brown);
-}
-
-.filter-tabs { 
-    display: flex; 
-    padding: 0 0 15px 0;
-    gap: 8px; 
-}
-
-.filter-btn {
-    flex: 1;
-    padding: 6px;
-    font-size: 12px;
-}
-
-.filter-btn.active { 
-    border-color: var(--text-main); 
-}
-
-.filter-select {
-    background: var(--warm-white);
-    border: 1px solid var(--sand);
-    border-radius: 8px;
-    padding: 6px 10px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--deep-brown);
-    outline: none;
-    flex: 1;
-}
-
-.filter-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-}
-
-.filter-label {
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--taupe);
-    text-transform: uppercase;
-}
-
-/* GRID DE COLECCIÓN */
-.era-section { 
-    margin-bottom: 25px; 
-}
-
-.era-title {
-    font-family: var(--font-display);
-    font-size: 14px;
-    letter-spacing: 1px;
-    color: var(--taupe);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.era-title::after { 
-    content: ""; 
-    flex: 1; 
-    height: 1px; 
-    background: #E8E2D9; 
-}
-
-.pc-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-}
-
+/* Member chips — single-row horizontal scroll */
 .member-filter-panel {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    gap: 8px;
-    padding: 10px 0;
-    width: 100%;
-    background: transparent;
+    display: flex; flex-direction: row; gap: 6px;
+    overflow-x: auto; overflow-y: hidden;
+    padding: 2px 0 8px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
 }
-
-/* En tablets o pantallas más anchas, que sean más columnas */
-@media (min-width: 480px) {
-    .member-filter-panel {
-        grid-template-columns: repeat(7, 1fr); /* Una columna por miembro */
-    }
-}
+.member-filter-panel::-webkit-scrollbar { display: none; }
 
 .member-checkbox-wrapper {
-    position: relative;
-    width: 100%;
-    height: 35px;
+    position: relative; flex-shrink: 0;
+    height: 28px; min-width: 42px;
 }
 
 .member-checkbox-input {
-    opacity: 0;
-    position: absolute;
-    top: 0; 
-    left: 0;
-    width: 100%; 
-    height: 100%;
-    cursor: pointer;
-    z-index: 5;
-    margin: 0;
+    opacity: 0; position: absolute; inset: 0;
+    cursor: pointer; z-index: 5; margin: 0;
+    width: 100%; height: 100%;
 }
 
 .member-label {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%; 
-    height: 100%;
-    font-size: 11px;
-    font-weight: 700;
-    color: #888;
-    background-color: #f9f7f2; /* Color crema suave */
-    
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; height: 100%;
+    font-size: 10px; font-weight: 700; color: var(--text-sub);
+    background: var(--off-white);
+    border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 0 10px; white-space: nowrap;
+    transition: all .18s ease; box-sizing: border-box;
+    letter-spacing: .2px;
 }
-
-/* ESTADO: Checkbox seleccionado */
 .member-checkbox-input:checked + .member-label {
-    background-color: #d6a6a6; /* Rosa pastel de tu paleta */
-    border-color: #d6a6a6;
-    color: white;
-    box-shadow: 0 2px 8px rgba(214, 166, 166, 0.3);
+    background: var(--rose); border-color: var(--rose-mid); color: var(--text-main);
 }
-
-/* Opcional: El botón de 'ALL' al principio */
 .member-label.all-label {
-    background-color: #4a3f35; /* El oscuro de tu paleta */
-    color: white;
-    border-color: #4a3f35;
+    background: var(--text-main); color: var(--white); border-color: var(--text-main);
+}
+.member-checkbox-input:checked + .member-label.all-label {
+    background: var(--text-main); border-color: var(--text-main); color: var(--white);
 }
 
-/* PHOTOCARD */
+/* Status filter tabs */
+.filter-tabs { display: flex; gap: 6px; }
+
+.filter-btn {
+    font-family: var(--font-body); font-size: 11px; font-weight: 600;
+    color: var(--text-sub); border: 1.5px solid var(--border);
+    background: var(--off-white); border-radius: 8px;
+    padding: 6px 0; flex: 1; cursor: pointer;
+    transition: all .18s ease; letter-spacing: .2px;
+}
+.filter-btn.active {
+    background: var(--text-main); color: var(--white); border-color: var(--text-main);
+}
+
+/* ============================================================
+   HINT STRIP
+   ============================================================ */
+.hint-strip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-ui);
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    font-size: 11px; color: var(--text-sub);
+    line-height: 1.4;
+}
+.hint-leaf {
+    width: 14px; height: 14px; flex-shrink: 0;
+    fill: var(--sage);
+}
+.hint-strip span { flex: 1; }
+.hint-close {
+    background: none; border: none; color: var(--text-sub);
+    font-size: 11px; cursor: pointer; padding: 0 2px;
+    flex-shrink: 0; line-height: 1;
+}
+
+/* ============================================================
+   SCROLLABLE CONTENT
+   ============================================================ */
+.app-content {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 14px 18px 170px;
+    -webkit-overflow-scrolling: touch;
+}
+.app-content::-webkit-scrollbar { display: none; }
+
+/* ============================================================
+   COLLECTION GRID
+   ============================================================ */
+.era-section  { margin-bottom: 28px; }
+
+.era-title {
+    display: flex; align-items: baseline; gap: 6px;
+    margin-bottom: 10px; flex-wrap: wrap;
+}
+.era-album-name {
+    font-family: var(--font-display); font-size: 13px;
+    color: var(--text-main); font-weight: 700; letter-spacing: .5px;
+}
+.era-version-name { font-size: 12px; color: var(--text-sub); }
+.era-count {
+    margin-left: auto; font-size: 11px;
+    color: var(--rose-deep); font-weight: 700; white-space: nowrap;
+}
+
+.pc-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+@media (max-width: 340px) { .pc-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* ============================================================
+   PHOTOCARD  (overflow:hidden fixes the border-radius clipping)
+   ============================================================ */
 .photocard {
     aspect-ratio: 2/3;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: var(--radius-card);
+    overflow: hidden;               /* clips image to rounded corners */
     position: relative;
-    display: flex;
-    overflow: visible;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid #f0f0f0;
-    
-    /* BLOQUEO DE GESTOS NATIVOS */
-    -webkit-touch-callout: none; /* Bloquea el menú nativo en iOS */
-    user-select: none;           /* Bloquea la selección de texto */
-    -webkit-touch-callout: none; /* Bloquea el menú de "Guardar imagen/Copiar" en iOS */
-    -webkit-user-select: none;    /* Bloquea la selección de texto en Chrome/Safari */
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;            /* Bloquea la selección estándar */
+    border: 2px solid transparent;
+    transition: transform .15s ease;
+    background: var(--surface);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none; user-select: none;
     touch-action: none;
     -webkit-tap-highlight-color: transparent;
 }
 
-/* el Pseudo-elemento para el icono base */
-.photocard::after {
-    content: '';
-    position: absolute;
-    top: -5px; /* Ajustado para que no se vea "salido" feo */
-    right: -5px; 
-    width: 22px; 
-    height: 22px;
-    background-size: 70%; /* La hojita un poco más pequeña que el círculo */
-    background-repeat: no-repeat;
-    background-position: center;
-    background-color: #ffffff; /* Fondo blanco para que la hoja resalte */
-    border-radius: 50%; /* Círculo perfecto para evitar bordes cuadrados */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sombra para dar profundidad */
-    opacity: 0; 
-    transition: all 0.2s ease;
-    z-index: 20; 
-}
-
 .pc-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Llenar la card sin deformarse */
-    display: block;
-    background-color: #f0f0f0;
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    border-radius: 0;               /* radius from parent overflow:hidden */
 }
 
-/* Estilo para la imagen dentro de la card */
-.pc-image-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.pc-image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Para que la photocard llene todo el espacio sin deformarse */
-    display: block;
-    border-radius: 12px;
-    clip-path: inset(0 round 12px); 
-    z-index: 1;
-}
-
-/* Estado 0: PENDING (Totalmente limpio) */
-.photocard.status-0 {
-    border: 1px dashed var(--sand); /* Borde punteado muy fino para la "existencia" */
-    opacity: 0.3;
-}
-
-/* Estado 1: HAVE (Borde verde) */
-.photocard.status-1 {
-    border: 2px solid rgba(139, 168, 136, 0.6) !important; /* Sage con transparencia */
-    box-shadow: 0 4px 12px rgba(139, 168, 136, 0.15); /* Sombra muy sutil */
-    opacity: 1;
-}
-
-/* Estado 2: ON THE WAY (Borde amarillo/ámbar) */
-.photocard.status-2 {
-    border: 2px solid rgba(232, 225, 208, 0.8);
-    box-shadow: 0 4px 12px rgba(232, 225, 208, 0.2);
-    opacity: 1;
-}
-
-/* Estado 3: DON'T COLLECT (Rojo y muy transparente) */
-.photocard.status-3 {
-    border: 2px solid rgba(212, 132, 122, 0.5);
-    box-shadow: 0 4px 12px rgba(212, 132, 122, 0.15);
-    opacity: 1;
-}
-
-/* Estado 4: TRADE (Rosa y muy transparente) */
-.photocard.status-4 {
-    border: 2px solid rgba(255, 105, 180, 0.4);
-    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1);
-    opacity: 1;
-}
-
-/* ESTADO 2: ON THE WAY (Hoja Verde Sage) */
-.photocard.status-2::after {
-    opacity: 1;
-    /* SVG de una hoja más realista y estilizada */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238BA888'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z' /%3E%3C/svg%3E");
-}
-
-/* ESTADO 3: DROP / PRIORIDAD (Hoja Rosa Intenso de tu paleta) */
-.photocard.status-3::after {
-    opacity: 1;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23D4847A'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z' /%3E%3C/svg%3E");
-}
-
-/* ESTADO 4: TRADE (Hoja Rosa Pastel - Setup Color) */
-.photocard.status-4::after {
-    opacity: 1;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23F7D1D1'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z' /%3E%3C/svg%3E");
-}
-
-.photocard.not-owned { 
-    opacity: 0.3; 
-}
-
-.photocard.owned { 
-    border: 2px solid var(--accent-sage); 
-    opacity: 1;
-}
-
-.photocard:active {
-    transform: scale(0.92);
-    transition: transform 0.1s ease;
-    filter: brightness(0.9);
-}
-
-.pc-initial { 
-    font-size: 16px; 
-    color: var(--taupe); /* Usando tu token de color suave */
-    font-weight: 300;
-}
-
-.pc-name { 
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
-    color: white;
-    font-size: 10px;
-    text-align: center;
-    padding: 4px 0;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-/* Contenedor cuando no hay foto aún */
 .pc-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--warm-white); /* Color crema de tu paleta */
-    border: 1px dashed var(--sand); /* Borde sutil para indicar que falta algo */
-    border-radius: 12px;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface);
 }
-
 .pc-placeholder span {
-    font-family: var(--font-display); /* Usando tu fuente elegante */
-    font-size: 20px;
-    color: var(--taupe);
-    letter-spacing: 2px;
-    opacity: 0.6;
-    text-transform: uppercase;
+    font-family: var(--font-display); font-size: 13px;
+    color: var(--text-sub); text-transform: uppercase;
+    letter-spacing: 1px; opacity: .7;
+    text-align: center; padding: 4px;
 }
 
-.app-content {
-    flex: 1;
-    overflow-y: auto; /* Permite scroll solo en el contenido */
-    padding: 10px 20px 20px;
+.pc-name {
+    position: absolute; bottom: 0; width: 100%;
+    background: linear-gradient(transparent, rgba(0,0,0,0.52));
+    color: #fff; font-size: 9px; text-align: center;
+    padding: 10px 2px 4px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: .3px;
+    pointer-events: none;
 }
 
-/* Opcional: Ocultar la barra de scroll para que parezca más app */
-.app-content::-webkit-scrollbar {
-    display: none;
-}
+/* Status borders */
+.photocard.status-0 { border-color: transparent; opacity: .28; filter: grayscale(1); }
+.photocard.status-1 { border-color: rgba(139,168,136,.55); opacity: 1; filter: none; } /* HAVE — sage tint */
+.photocard.status-2 { border-color: rgba(168,212,230,.7);  opacity: 1; filter: none; } /* WISHLIST — sky */
+.photocard.status-3 { border-color: rgba(249,228,160,.8);  opacity: 1; filter: none; } /* ON THE WAY — yellow */
+.photocard.status-4 { border-color: rgba(247,209,209,.9);  opacity: 1; filter: none; box-shadow: 0 0 10px rgba(247,209,209,.5); } /* TRADE — rose */
 
+.photocard:active { transform: scale(0.9); }
+
+/* ── Leaf badge wrapper — sits OUTSIDE the overflow:hidden card ── */
+.pc-wrapper { position: relative; }
+
+.leaf-badge-overlay {
+    position: absolute; top: -4px; right: -4px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--white);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10; pointer-events: none;
+}
+.leaf-badge-overlay svg { width: 12px; height: 12px; display: block; }
+
+/* ── Empty state ── */
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text-sub); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-state p { font-size: 13px; margin: 0; }
+
+/* ============================================================
+   STATUS LEGEND
+   ============================================================ */
 .footer-legend {
-    position: fixed;
-    bottom: 70px; /* Se apoya justo encima de la bottom-nav (que suele medir 60-70px) */
-    left: 50%;
-    transform: translateX(-50%); /* Centrado perfecto */
-    
-    width: 90%; /* Deja un pequeño margen a los lados para que no toque los bordes */
-    max-width: 400px; /* Se ajusta al ancho máximo de tu app */
-    
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    
-    background: rgba(255, 255, 255, 0.95); /* Blanco con ligera transparencia */
-    backdrop-filter: blur(10px); /* Efecto cristalino moderno */
-    padding: 12px 5px;
-    border-radius: 15px; /* Bordes redondeados para que parezca una "isla" */
-    
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.05); /* Sombra muy sutil */
-    border: 1px solid #eee;
-    z-index: 99;
+    position: absolute;
+    bottom: 62px; left: 50%; transform: translateX(-50%);
+    width: calc(100% - 32px); max-width: 400px;
+    display: flex; justify-content: space-around; align-items: center;
+    background: rgba(255,255,255,.94);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    padding: 9px 6px; border-radius: 14px;
+    box-shadow: 0 -1px 12px rgba(0,0,0,.06);
+    border: 1px solid var(--border);
+    z-index: 99; pointer-events: none;
 }
 
 .legend-item {
-    display: flex;
-    align-items: center;
-    font-size: 10px;
-    font-weight: bold;
-    color: #888;
+    display: flex; align-items: center; gap: 5px;
+    font-size: 9px; font-weight: 700;
+    color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: .3px;
 }
 
-.dot {
-    height: 8px;
-    width: 8px;
-    border-radius: 50%;
-    margin-right: 5px;
+/* Plain dot for HAVE (no leaf) */
+.legend-dot.have-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--sage); display: inline-block; flex-shrink: 0;
 }
 
-.dot.status-0 { background: #d1d1d1; }
-.dot.status-1 { background: #4CAF50; }
-.dot.status-2 { background: #FFC107; }
-.dot.status-3 { background: #F44336; }
-.dot.status-4 { background: #FF69B4; }
-
-/* VISTA ESTADÍSTICAS */
-/* Manejo de Vistas */
-.view { animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* Stats Styles */
-.stats-header { padding: 20px; }
-.view-title { font-family: var(--font-display); font-size: 24px; margin: 0; }
-.view-subtitle { color: var(--taupe); font-size: 14px; margin-top: 5px; }
-
-.progress-container-main { margin-top: 15px; }
-#total-percent-text { font-size: 14px; color: var(--accent-rose); font-weight: bold; }
-
-.progress-bar-bg { 
-    background: var(--sand); 
-    height: 8px; 
-    border-radius: 10px; 
-    margin-top: 8px; 
-    overflow: hidden; 
+/* Leaf badges in legend */
+.leaf-badge {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--white);
+    border: 1px solid var(--border);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
 }
-.progress-bar-fill { 
-    background: var(--accent-sage); 
-    height: 100%; 
-    width: 0%; 
-    transition: width 0.5s ease; 
+.leaf-badge svg { width: 11px; height: 11px; display: block; }
+
+.leaf-wish  svg { fill: var(--leaf-wish);  }
+.leaf-way   svg { fill: var(--leaf-way);   }
+.leaf-trade svg { fill: var(--leaf-trade); }
+
+/* ============================================================
+   BOTTOM NAV
+   ============================================================ */
+.bottom-nav {
+    display: flex; justify-content: space-around; align-items: center;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+    z-index: 100; flex-shrink: 0;
+}
+.nav-item {
+    background: none; border: none;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--text-sub); cursor: pointer; flex: 1; padding: 4px 0;
+    font-family: var(--font-body); transition: color .2s;
+}
+.nav-item i    { font-size: 18px; }
+.nav-item span { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+.nav-item.active       { color: var(--text-main); }
+.nav-item.active i     { color: var(--rose-deep); transform: translateY(-1px); }
+
+/* ============================================================
+   STATS VIEW
+   ============================================================ */
+.view { animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+
+.stats-header { padding: 4px 0 20px; }
+.view-title   { font-family: var(--font-display); font-size: 24px; margin: 0 0 4px; color: var(--text-main); }
+.view-subtitle { color: var(--text-sub); font-size: 13px; margin: 0; }
+
+.progress-container-main { margin-top: 16px; }
+#total-percent-text { font-size: 13px; color: var(--rose-deep); font-weight: 700; }
+
+.progress-bar-bg {
+    background: var(--surface); height: 6px;
+    border-radius: 10px; margin-top: 7px; overflow: hidden;
+}
+.progress-bar-fill {
+    background: var(--rose-mid); height: 100%; width: 0%;
+    transition: width .6s ease; border-radius: 10px;
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    padding: 0 20px;
-}
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
 
 .stat-card {
-    background: var(--warm-white);
-    border: 1px solid var(--sand);
-    padding: 15px;
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 14px; border-radius: 14px; display: flex; flex-direction: column;
 }
+.stat-label     { font-size: 11px; color: var(--text-sub); }
+.stat-value     { font-size: 28px; font-family: var(--font-display); margin: 4px 0; color: var(--text-main); }
+.stat-value-alt { font-size: 28px; font-family: var(--font-display); color: var(--rose-deep); margin: 4px 0; }
+.stat-sub       { font-size: 10px; color: var(--text-sub); }
 
-.stat-label { font-size: 12px; color: var(--taupe); }
-.stat-value { font-size: 28px; font-family: var(--font-display); margin: 5px 0; }
-.stat-value-alt { font-size: 28px; font-family: var(--font-display); color: var(--accent-rose); margin: 5px 0; }
-.stat-sub { font-size: 10px; color: var(--taupe); }
+.stats-by-era { padding-top: 4px; }
+.section-label { font-size: 10px; letter-spacing: 1px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; margin: 0 0 14px; }
+.era-stat-row  { margin-bottom: 14px; }
+.era-stat-info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
 
-.stats-by-era { padding: 25px 20px; }
-.section-label { font-size: 12px; letter-spacing: 1px; color: var(--taupe); margin-bottom: 15px; }
+/* ============================================================
+   TRADE VIEW
+   ============================================================ */
+.trade-header-block { padding: 4px 0 16px; }
 
-.era-stat-row { margin-bottom: 15px; }
-.era-stat-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
-
-/* DISEÑO DE AJUSTES */
-.settings-group {
-    padding: 20px 0;
-}
-
-.settings-label {
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: var(--taupe);
-    margin-bottom: 10px;
-    text-transform: uppercase;
-}
-
-.settings-card {
-    background: var(--warm-white);
-    border: 1px solid var(--sand);
-    border-radius: 15px;
-    overflow: hidden;
-}
-
-.settings-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid var(--sand);
-    font-size: 14px;
-}
-
-.settings-row:last-child { border-bottom: none; }
-
-.badge-version {
-    background: #F2D7D5;
-    color: #C0392B;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 10px;
-    font-weight: bold;
-}
-
-.text-mute { color: var(--taupe); }
-
-/* BOTONES DE AJUSTES */
-.btn-settings {
-    width: 100%;
-    padding: 15px;
-    background: var(--warm-white);
-    border: 1px solid var(--sand);
-    border-radius: 12px;
-    margin-bottom: 10px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--deep-brown);
+.trade-share-btn {
+    width: 100%; padding: 13px;
+    background: var(--text-main); color: var(--white);
+    border: none; border-radius: var(--radius-ui);
+    font-family: var(--font-body); font-size: 13px; font-weight: 700;
     cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 14px; letter-spacing: .2px;
+    transition: opacity .2s;
 }
+.trade-share-btn:active { opacity: .8; }
 
-.btn-danger {
-    color: var(--accent-rose);
-    border-color: #F2D7D5;
+.trade-tip {
+    background: #fff5f5; border: 1px solid var(--rose);
+    border-radius: var(--radius-ui); padding: 11px 14px;
+    font-size: 12px; color: var(--text-main);
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-bottom: 18px; line-height: 1.5;
 }
+.trade-tip i { color: var(--rose-deep); margin-top: 1px; flex-shrink: 0; }
 
-/* SWITCHES (TOGGLES) */
-.toggle {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 20px;
-}
-
-.toggle input { opacity: 0; width: 0; height: 0; }
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: var(--sand);
-    transition: .4s;
-    border-radius: 20px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 16px; width: 16px;
-    left: 2px; bottom: 2px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-input:checked + .slider { background-color: var(--accent-sage); }
-input:checked + .slider:before { transform: translateX(20px); }
-
-.settings-footer {
-    text-align: center;
-    padding: 20px 0;
-    font-size: 11px;
-    color: var(--taupe);
-    line-height: 1.6;
-}
-
-/*TRADE*/
-#trade-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columnas para que se vean grandes y hermosas */
-    gap: 20px;
-    padding: 15px;
-}
-
-#view-trade .photocard.status-4 {
-    border: 2px solid #ff85a1; /* Borde rosa para resaltar */
-    border-radius: 12px;
-    overflow: hidden;
-    background: white;
-}
-
-.trade-item {
-    background: white;
-    border-radius: 12px;
-    padding: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-.trade-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 8px;
-    background: #f8f9fa;
-    border-radius: 20px;
-    padding: 2px 5px;
-}
-
-.trade-controls button {
-    background: white;
-    border: 1px solid #eee;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* BADGE REPETIDAS */
-
-.reps-badge {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: var(--pink-accent, #ff85a1);
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    border: 2px solid white;
+.trade-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 14px; margin-bottom: 24px;
 }
 
 .trade-card-modern {
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-    border: 2px solid #ff85a1; /* El rosa de Trade */
-    transition: transform 0.2s;
+    background: var(--white); border-radius: 14px;
+    overflow: hidden; border: 1.5px solid var(--rose);
+    box-shadow: var(--shadow-sm);
 }
-
-/* Contenedor de Imagen */
 .trade-image-wrapper {
-    position: relative;
-    aspect-ratio: 2/3;
-    background: #fdfdfd;
+    position: relative; aspect-ratio: 2/3;
+    background: var(--surface); overflow: hidden;
 }
+.trade-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.trade-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Badge de cantidad tipo Notificación */
 .trade-count-overlay {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #ff85a1;
-    color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    border: 2px solid white;
+    position: absolute; top: 8px; right: 8px;
+    background: var(--rose-deep); color: #fff;
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+    border: 2px solid #fff; box-shadow: var(--shadow-sm);
 }
-
-/* Barra de controles inferior */
 .trade-info-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    background: white;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; background: var(--white);
 }
-
 .trade-member-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: #444;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 12px; font-weight: 700; color: var(--text-main);
+    text-transform: uppercase; letter-spacing: .4px;
+    flex: 1; text-align: center;
 }
-
 .count-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    border: 1px solid #eee;
-    background: #f8f9fa;
-    color: #ff85a1;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 28px; height: 28px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--rose-deep); font-size: 17px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    line-height: 1; flex-shrink: 0; transition: background .15s;
 }
+.count-btn:active { background: var(--rose); }
 
-.count-btn:active {
-    background: #ff85a1;
-    color: white;
+.trade-coming-card {
+    background: var(--surface); border: 1px dashed var(--border-mid);
+    border-radius: 14px; padding: 24px 20px;
+    text-align: center; color: var(--text-sub);
 }
+.trade-coming-card i  { font-size: 26px; margin-bottom: 10px; color: var(--rose-mid); display: block; }
+.trade-coming-card h3 { font-size: 14px; color: var(--text-main); margin: 0 0 8px; }
+.trade-coming-card p  { font-size: 12px; margin: 0 0 14px; line-height: 1.5; }
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+.settings-group { padding: 14px 0; }
+.settings-label {
+    font-size: 10px; letter-spacing: 1px; color: var(--text-sub);
+    margin: 0 0 10px; text-transform: uppercase; font-weight: 700;
+}
+.settings-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+}
+.settings-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    font-size: 14px;
+}
+.settings-row:last-child { border-bottom: none; }
+
+/* Clickable link rows */
+.settings-link {
+    text-decoration: none; color: inherit;
+    transition: background .15s;
+}
+.settings-link:active { background: var(--border); }
+
+.community-icon {
+    margin-right: 8px; color: var(--rose-deep); font-size: 16px;
+}
+.link-arrow { font-size: 10px; color: var(--text-sub); margin-left: 4px; }
+
+.badge-version {
+    background: #fde8e8; color: #b83535;
+    padding: 2px 8px; border-radius: 8px;
+    font-size: 10px; font-weight: 700; letter-spacing: .3px;
+}
+.btn-settings {
+    width: 100%; padding: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-ui); margin-bottom: 10px;
+    font-family: var(--font-body); font-size: 14px; color: var(--text-main);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 8px; transition: background .15s;
+}
+.btn-settings:active { background: var(--border); }
+.btn-danger { color: var(--rose-deep); border-color: var(--rose); }
+
+/* Toggles */
+.toggle { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: var(--border-mid); transition: .3s; border-radius: 22px;
+}
+.slider:before {
+    position: absolute; content: "";
+    height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background: #fff; transition: .3s; border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+input:checked + .slider { background: var(--sage); }
+input:checked + .slider:before { transform: translateX(18px); }
+
+/* Settings footer */
+.settings-footer {
+    text-align: center; padding: 14px 0 4px;
+    font-size: 11px; color: var(--text-sub); line-height: 1.7;
+}
+.leaf-logo-footer {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; margin-bottom: 6px;
+}
+.footer-leaf { width: 18px; height: 18px; fill: var(--sage); }
+.leaf-logo-footer span { font-weight: 700; color: var(--text-main); font-size: 13px; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast {
+    position: fixed; bottom: 90px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--text-main); color: #fff;
+    padding: 9px 20px; border-radius: 24px;
+    font-size: 12px; font-family: var(--font-body); font-weight: 600;
+    z-index: 9999; opacity: 0; pointer-events: none;
+    transition: opacity .22s ease, transform .22s ease;
+    white-space: nowrap; box-shadow: var(--shadow-md);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }

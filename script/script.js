@@ -1,18 +1,55 @@
-// Variable global para saber qué artista estamos viendo
-let currentArtist = 'bts';
-let userProgress = {}; // { "id_de_la_pc": estado_0_al_3 }
-let selectedMember = 'todos';
-let quantityFilter = 'todos';
-let selectedMembers = new Set(['todos']);
+// ============================================================
+// STATE MAP
+//   0 → Pending    (grey, dimmed)
+//   1 → Have       (sage border, no leaf)
+//   2 → Wishlist   (sky-blue leaf)
+//   3 → On the Way (yellow leaf)
+//   4 → Trade      (pink leaf — only shown in Trade section)
+// ============================================================
 
-// Función que se ejecuta al seleccionar un artista inicial
+let currentArtist   = 'bts';
+let userProgress    = JSON.parse(localStorage.getItem('userProgress') || '{}');
+let selectedMembers = new Set(['todos']);
+let quantityFilter  = 'all';
+let searchQuery     = '';
+
+if (!window.userReps) {
+    window.userReps = JSON.parse(localStorage.getItem('userReps') || '{}');
+}
+
+// ============================================================
+// LEAF SVG helper
+// ============================================================
+const LEAF_SVG_PATH = `M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z`;
+
+// Colors per status (only statuses that show a leaf)
+const LEAF_COLORS = {
+    2: '#A8D4E6',   // Wishlist — sky blue
+    3: '#F9E4A0',   // On the Way — soft yellow
+    4: '#F7D1D1',   // Trade — pale rose
+};
+
+function makeLeafSVG(color) {
+    return `<svg viewBox="0 0 24 24"><path d="${LEAF_SVG_PATH}" fill="${color}"/></svg>`;
+}
+
+// ============================================================
+// ONBOARDING / NAVIGATION
+// ============================================================
 function selectInitialArtist(artistId) {
     currentArtist = artistId;
     document.getElementById('view-onboarding').style.display = 'none';
     document.getElementById('main-app').style.display = 'flex';
-    
+
     const headerName = document.getElementById('header-artist-name');
     if (headerName) headerName.innerText = artistId.toUpperCase();
+
+    const settingsArtist = document.getElementById('settings-artist-name');
+    if (settingsArtist) settingsArtist.innerText = artistId.toUpperCase();
+
+    selectedMembers = new Set(['todos']);
+    quantityFilter  = 'all';
+    searchQuery     = '';
 
     updateMemberFilters();
     renderCollection();
@@ -24,441 +61,571 @@ function goToOnboarding() {
     document.getElementById('view-onboarding').style.display = 'flex';
 }
 
-// Esta función llena el selector dependiendo del grupo (BTS o Twice)
-function updateMemberFilters() {
-    const panel = document.getElementById('member-checkbox-panel');
-    if (!panel) return;
-    panel.innerHTML = ''; // Limpiamos el panel
-
-    // 1. OBTENER MIEMBROS (Aquí arreglamos el acceso a datos)
-    // Buscamos el primer álbum y su primera versión para sacar los 7 nombres únicos de BTS
-    const albumData = groupsData[currentArtist]?.[0];
-    if (!albumData || !albumData.versions[0]) return;
-    
-    // Obtenemos una lista de solo los nombres (RM, Jin, Suga...)
-    const memberNames = albumData.versions[0].members.map(m => m.name);
-
-    // 2. CREAR EL CHECKBOX DE 'ALL'
-    createCheckbox('ALL', 'todos', true, panel);
-
-    // 3. CREAR LOS CHECKBOXES DE CADA MIEMBRO
-    memberNames.forEach(name => {
-        createCheckbox(name, name, false, panel);
-    });
-}
-
-// Función auxiliar para crear cada checkbox de forma limpia
-function createCheckbox(label, value, isAll, container) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'member-checkbox-wrapper';
-
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.className = 'member-checkbox-input';
-    input.value = value;
-    input.id = `member-filter-${value}`;
-    
-    // Si 'todos' está seleccionado al inicio, lo marcamos
-    if (value === 'todos' && selectedMembers.has('todos')) {
-        input.checked = true;
-    }
-
-    const spanLabel = document.createElement('label');
-    spanLabel.className = isAll ? 'member-label all-label' : 'member-label';
-    spanLabel.htmlFor = `member-filter-${value}`;
-    spanLabel.innerText = label;
-
-    // EVENTO: Manejar los clicks en los checkboxes
-    input.addEventListener('change', handleMemberCheckboxChange);
-
-    wrapper.appendChild(input);
-    wrapper.appendChild(spanLabel);
-    container.appendChild(wrapper);
-}
-
-function handleMemberCheckboxChange(e) {
-    const checkbox = e.target;
-    const val = checkbox.value;
-
-    if (val === 'todos') {
-        if (checkbox.checked) {
-            // Desmarcar todos los demás visualmente
-            document.querySelectorAll('.member-checkbox-input').forEach(chk => {
-                if(chk.value !== 'todos') chk.checked = false;
-            });
-            selectedMembers.clear();
-            selectedMembers.add('todos');
-        }
-    } else {
-        if (checkbox.checked) {
-            // Si marcas un miembro, quita el check de 'ALL'
-            const allBtn = document.getElementById('filter-member-todos'); // <--- USA ESTE ID
-            if(allBtn) allBtn.checked = false;
-            
-            selectedMembers.delete('todos');
-            selectedMembers.add(val);
-        } else {
-            selectedMembers.delete(val);
-            if (selectedMembers.size === 0) {
-                const allBtn = document.getElementById('filter-member-todos');
-                if(allBtn) allBtn.checked = true;
-                selectedMembers.add('todos');
-            }
-        }
-    }
-
-    // Finalmente, renderizamos la colección con los nuevos filtros.
-    renderCollection();
-}
-
-function setQuantityFilter(type, btn) {
-    quantityFilter = type;
-    // Manejo visual de botones activos
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderCollection();
-}
-
-// FUNCIONES DE NAVEGACIÓN Y FILTROS
-function applyFilters() {
-    selectedMember = document.getElementById('member-filter').value;
-    renderCollection();
-}
-
-function renderCollection() {
-    const grid = document.getElementById('collection-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-
-    const pobSwitch = document.getElementById('pob-switch'); 
-    const showPOBs = pobSwitch ? pobSwitch.checked : false;
-    
-    const albums = groupsData[currentArtist] || [];
-
-    albums.forEach(album => {
-        album.versions.forEach(version => {
-
-            if (version.is_pob && !showPOBs) {
-                return; 
-            }
-
-            const section = document.createElement('div');
-            section.className = 'era-section';
-            
-            // Solo contamos las que "HAVE" (Status 1)
-            const ownedInVersion = version.members.filter(m => (userProgress[m.id] || 0) === 1).length;
-
-            section.innerHTML = `
-                <div class="era-title">
-                    ${album.album} — ${version.subname} <span class="version-counter">${ownedInVersion}/${version.members.length}</span>
-                </div>
-                <div class="pc-grid"></div>
-            `;
-
-            const pcGrid = section.querySelector('.pc-grid');
-
-            version.members.forEach(member => {
-                const status = userProgress[member.id] || 0;
-
-                // Filtros
-                const matchesMember = selectedMembers.has('todos') || selectedMembers.has(member.name);
-                let matchesQuantity = true;
-                if (quantityFilter === '1') matchesQuantity = status === 1;
-                if (quantityFilter === '2') matchesQuantity = status === 2;
-
-                if (!matchesMember || !matchesQuantity) return;
-
-                const pc = document.createElement('div');
-                // Si es status 0, no le ponemos clase de borde
-                pc.className = `photocard status-${status}`;
-                pc.id = `pc-${member.id}`;
-
-                pc.innerHTML = `
-                    <img src="${member.img}" 
-                         class="pc-image" 
-                         alt="${member.name}" 
-                         onerror="this.src='https://placehold.co/200x300?text=${member.name}';">
-                `;
-
-                // --- TUS EVENTOS DE LONG PRESS (Mantenidos) ---
-                let timer;
-                let isLongPress = false;
-
-                const startPress = () => {
-                    isLongPress = false; 
-                    timer = setTimeout(() => {
-                        resetCard(member.id);
-                        isLongPress = true;
-                        if (navigator.vibrate) navigator.vibrate(50);
-                    }, 800);
-                };
-
-                const handleRelease = (e) => {
-                    clearTimeout(timer);
-                    if (e.cancelable) e.preventDefault();
-                    if (isLongPress) {
-                        setTimeout(() => { isLongPress = false; }, 100);
-                        return; 
-                    }
-                    handleTap(member.id);
-                };
-
-                pc.addEventListener('mousedown', (e) => {
-                // Si es un mouse real (no un toque emulado), ejecutamos
-                if (e.detail > 0) startPress(e);
-            });
-                pc.addEventListener('mouseup', (e) => {
-                    if (e.detail > 0) handleRelease(e);
-                });
-
-                pc.addEventListener('mouseleave', () => clearTimeout(timer));
-
-                pc.addEventListener('touchstart', startPress, { passive: false });
-                pc.addEventListener('touchend', handleRelease, { passive: false });
-
-                pcGrid.appendChild(pc);
-            });
-
-            // Solo añadimos la sección si tiene cartas que mostrar
-            if (pcGrid.children.length > 0) {
-                grid.appendChild(section);
-            }
-        });
-    });
-}
-
-function updateSingleCardUI(memberId, newStatus) {
-    const pcElement = document.getElementById(`pc-${memberId}`);
-    if (pcElement) {
-        // 1. Removemos todas las clases de status anteriores (0 a 4)
-        pcElement.classList.remove('status-0', 'status-1', 'status-2', 'status-3', 'status-4');
-        // 2. Añadimos la nueva clase
-        pcElement.classList.add(`status-${newStatus}`);
-    }
-}
-
-function handleTap(memberId) {
-    // Obtenemos el estado actual o 0 si no existe
-    let currentStatus = userProgress[memberId] || 0;
-    
-    // Ciclo de 4 estados: 
-    // 0 (No) -> 1 (Have/Verde) -> 2 (Way/Amarillo) -> 3 (Drop/Rojo) -> 4 (Trade/Rosa) -> vuelve a 0
-    let nextStatus = (currentStatus + 1) % 5;
-    
-    // Guardamos el progreso
-    userProgress[memberId] = nextStatus;
-    
-    // Guardar en LocalStorage para no perder cambios al recargar
-    localStorage.setItem('userProgress', JSON.stringify(userProgress));
-    
-    // Refrescamos
-    updateSingleCardUI(memberId, nextStatus);
-
-    if (typeof updateStats === "function") updateStats();
-}
-
-function resetCard(id) {
-    userProgress[id] = 0;
-    updateSingleCardUI(id, 0); 
-    if (typeof updateStats === "function") updateStats();
-}
-
-function createPCElement(member) {
-    const pc = document.createElement('div');
-    pc.className = 'photocard status-0'; // Estado inicial: Pending
-    
-    // Si no hay URL, mostramos el texto del nombre
-    if (!member.img || member.img === "URL_AQUÍ") {
-        pc.innerHTML = `
-            <div class="pc-placeholder">
-                <span>${member.name}</span>
-            </div>
-        `;
-    } else {
-        pc.innerHTML = `
-            <div class="pc-image-container">
-                <img src="${member.img}" alt="${member.name}" class="pc-image">
-            </div>
-        `;
-    }
-    
-    return pc;
-}
-
-//Estadísticas
-
-// 1. Lógica de Navegación
-const navButtons = document.querySelectorAll('.nav-btn');
-const views = document.querySelectorAll('.view');
-
-navButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Cambiar estado visual de botones
-        navButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        // Cambiar vista
-        const viewId = `view-${btn.innerText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`;
-        views.forEach(v => v.style.display = 'none');
-        document.getElementById(viewId).style.display = 'block';
-
-        if(viewId === 'view-stats') updateStats();
-    });
-});
-
-// 2. Función para calcular estadísticas
-function updateStats() {
-    const selectedData = groupsData[currentArtist] || [];
-    let totalPossible = 0;
-    let totalOwned = 0;
-    let totalOnTheWay = 0;
-
-    const eraListContainer = document.getElementById('era-stats-list');
-    eraListContainer.innerHTML = '';
-
-    selectedData.forEach(era => {
-        totalPossible += era.members.length;
-        let ownedInEra = 0;
-
-        era.members.forEach(m => {
-            const status = userProgress[m.id] || 0;
-            if (status === 1) ownedInEra++; // HAVE
-            if (status === 2) totalOnTheWay++; // WAY
-        });
-        totalOwned += ownedInEra;
-
-        const percent = Math.round((ownedInEra / era.members.length) * 100) || 0;
-        eraListContainer.innerHTML += `
-            <div class="era-stat-row">
-                <div class="era-stat-info">
-                    <span>${era.name}</span>
-                    <span>${percent}%</span>
-                </div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
-            </div>
-        `;
-    });
-
-    const totalPercent = Math.round((totalOwned / totalPossible) * 100) || 0;
-    document.getElementById('stat-obtained').innerText = totalOwned;
-    document.getElementById('stat-missing').innerText = totalPossible - totalOwned;
-    document.getElementById('stat-reps').innerText = totalOnTheWay; // Ahora mostramos "En camino" aquí
-    document.getElementById('total-percent-text').innerText = `${totalPercent}% completado`;
-    document.getElementById('total-progress-fill').style.width = `${totalPercent}%`;
-}
-
 function switchView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-    
-    const currentView = document.getElementById('view-' + viewId);
-    if (currentView) currentView.style.display = 'block';
-    
-    //Mostrar la barra de colores solo en colección
-    const legend = document.querySelector('.footer-legend');
-        if (legend) {
-            legend.style.display = (viewId === 'coleccion') ? 'flex' : 'none';
-        }
 
-    if(viewId === 'stats') updateStats();
-    if(viewId === 'trade') updateTradeView();
+    const target = document.getElementById('view-' + viewId);
+    if (target) target.style.display = 'block';
 
-    // Actualizar nav bar
-    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+    // Sticky filter bar + legend — only in collection view
+    const filterBar = document.getElementById('sticky-filter-bar');
+    const legend    = document.getElementById('footer-legend');
+    const isCol     = viewId === 'coleccion';
+    if (filterBar) filterBar.style.display = isCol ? '' : 'none';
+    if (legend)    legend.style.display    = isCol ? 'flex' : 'none';
+
+    // Active nav
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     const activeBtn = document.querySelector(`.nav-item[onclick*="${viewId}"]`);
     if (activeBtn) activeBtn.classList.add('active');
 
+    if (viewId === 'stats') updateStats();
+    if (viewId === 'trade') renderTradeView();
 }
 
-// Necesitamos un objeto para guardar las cantidades de repetidas si no existe
-if (!window.userReps) {
-    window.userReps = JSON.parse(localStorage.getItem('userReps')) || {};
+// ============================================================
+// HINT STRIP
+// ============================================================
+function dismissHint() {
+    const hint = document.getElementById('hint-strip');
+    if (hint) { hint.style.display = 'none'; localStorage.setItem('hint_dismissed', '1'); }
 }
 
-function updateTradeView() {
-    const tradeContainer = document.getElementById('view-trade');
-    if (!tradeContainer) return;
+// ============================================================
+// MEMBER FILTER CHIPS — generated from groupsData dynamically
+// ============================================================
+function updateMemberFilters() {
+    const panel = document.getElementById('member-checkbox-panel');
+    if (!panel) return;
+    panel.innerHTML = '';
+    selectedMembers = new Set(['todos']);
 
-    tradeContainer.innerHTML = `
-        <div class="stats-header">
-            <h1 class="view-title">Trade List</h1>
-            <p class="view-subtitle">Gestiona tus cartas disponibles para intercambio.</p>
-        </div>
-        <div class="app-content">
-            <div class="trade-grid" id="trade-grid"></div>
-        </div>
-    `;
-
-    const tradeGrid = document.getElementById('trade-grid');
-    let hasTrade = false;
-    const currentAlbums = groupsData[currentArtist] || [];
-
-    currentAlbums.forEach(album => {
+    // Collect unique member names across all versions of all albums
+    const nameSet = new Set();
+    (groupsData[currentArtist] || []).forEach(album => {
         album.versions.forEach(version => {
-            version.members.forEach(member => {
-                const status = userProgress[member.id] || 0;
-
-                if (status === 4) {
-                    hasTrade = true;
-                    const count = window.userReps[member.id] || 1;
-                    
-                    const card = document.createElement('div');
-                    card.className = 'trade-card-modern';
-                    card.innerHTML = `
-                        <div class="trade-image-wrapper">
-                            <img src="${member.img}" class="trade-img" onerror="this.src='https://placehold.co/200x300?text=${member.name}';">
-                            <div class="trade-count-overlay">${count}</div>
-                        </div>
-                        <div class="trade-info-bar">
-                            <button class="count-btn" onclick="changeRepCount('${member.id}', -1)">-</button>
-                            <span class="trade-member-name">${member.name}</span>
-                            <button class="count-btn" onclick="changeRepCount('${member.id}', 1)">+</button>
-                        </div>
-                    `;
-                    tradeGrid.appendChild(card);
+            version.members.forEach(m => {
+                // Skip "Group" / "Unit" type entries from the chip list
+                if (!['group','unit 1','unit 2','unit'].includes(m.name.toLowerCase())) {
+                    nameSet.add(m.name);
                 }
             });
         });
     });
 
-    if (!hasTrade) {
-        tradeGrid.innerHTML = `<div class="empty-state">No hay cartas marcadas para trade.</div>`;
+    createChip('ALL', 'todos', true, panel);
+    nameSet.forEach(name => createChip(name, name, false, panel));
+}
+
+function createChip(label, value, isAll, container) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'member-checkbox-wrapper';
+
+    const input = document.createElement('input');
+    input.type      = 'checkbox';
+    input.className = 'member-checkbox-input';
+    input.value     = value;
+    input.id        = `member-filter-${value}`;
+    if (value === 'todos') input.checked = true;
+
+    const lbl = document.createElement('label');
+    lbl.className = isAll ? 'member-label all-label' : 'member-label';
+    lbl.htmlFor   = `member-filter-${value}`;
+    lbl.innerText = label;
+
+    input.addEventListener('change', handleMemberChipChange);
+    wrapper.appendChild(input);
+    wrapper.appendChild(lbl);
+    container.appendChild(wrapper);
+}
+
+function handleMemberChipChange(e) {
+    const { value, checked } = e.target;
+
+    if (value === 'todos') {
+        if (checked) {
+            document.querySelectorAll('.member-checkbox-input').forEach(c => {
+                if (c.value !== 'todos') c.checked = false;
+            });
+            selectedMembers.clear();
+            selectedMembers.add('todos');
+        }
+    } else {
+        if (checked) {
+            const allChk = document.getElementById('member-filter-todos');
+            if (allChk) allChk.checked = false;
+            selectedMembers.delete('todos');
+            selectedMembers.add(value);
+        } else {
+            selectedMembers.delete(value);
+            if (selectedMembers.size === 0) {
+                const allChk = document.getElementById('member-filter-todos');
+                if (allChk) allChk.checked = true;
+                selectedMembers.add('todos');
+            }
+        }
+    }
+    renderCollection();
+}
+
+// ============================================================
+// STATUS FILTER TABS
+// ============================================================
+function setQuantityFilter(type, btn) {
+    quantityFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCollection();
+}
+
+// ============================================================
+// REAL-TIME SEARCH
+// ============================================================
+function handleSearch(val) {
+    searchQuery = val.trim().toLowerCase();
+    const clearBtn = document.getElementById('search-clear');
+    if (clearBtn) clearBtn.style.display = searchQuery ? 'flex' : 'none';
+    renderCollection();
+}
+
+function clearSearch() {
+    const input = document.getElementById('search-input');
+    if (input) input.value = '';
+    searchQuery = '';
+    const clearBtn = document.getElementById('search-clear');
+    if (clearBtn) clearBtn.style.display = 'none';
+    renderCollection();
+}
+
+// ============================================================
+// RENDER COLLECTION (full rebuild on filter change)
+// ============================================================
+function renderCollection() {
+    const grid = document.getElementById('collection-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const showPOBs = document.getElementById('pob-switch')?.checked ?? true;
+    const albums   = groupsData[currentArtist] || [];
+    let   anyVisible = false;
+
+    albums.forEach(album => {
+        album.versions.forEach(version => {
+            if (version.is_pob && !showPOBs) return;
+
+            // Search: match album name or version subname
+            if (searchQuery) {
+                const hay = `${album.album} ${version.subname}`.toLowerCase();
+                if (!hay.includes(searchQuery)) return;
+            }
+
+            const ownedInVersion = version.members.filter(
+                m => (userProgress[m.id] || 0) === 1
+            ).length;
+
+            const section = document.createElement('div');
+            section.className = 'era-section';
+            section.innerHTML = `
+                <div class="era-title">
+                    <span class="era-album-name">${album.album}</span>
+                    <span class="era-version-name">— ${version.subname}</span>
+                    <span class="era-count">${ownedInVersion}/${version.members.length}</span>
+                </div>
+                <div class="pc-grid"></div>
+            `;
+
+            const pcGrid = section.querySelector('.pc-grid');
+            let sectionHasCards = false;
+
+            version.members.forEach(member => {
+                const status = userProgress[member.id] || 0;
+
+                // Member filter
+                const matchesMember = selectedMembers.has('todos') || selectedMembers.has(member.name);
+
+                // Status filter
+                //   'all'  → show everything
+                //   'have' → status 1
+                //   'way'  → status 3
+                //   'wish' → status 2
+                //   NOTE: Trade (status 4) is NOT a filter tab here
+                let matchesQuantity = true;
+                if (quantityFilter === 'have') matchesQuantity = status === 1;
+                if (quantityFilter === 'way')  matchesQuantity = status === 3;
+                if (quantityFilter === 'wish') matchesQuantity = status === 2;
+
+                if (!matchesMember || !matchesQuantity) return;
+
+                sectionHasCards = true;
+                pcGrid.appendChild(buildPCWrapper(member, status, false));
+            });
+
+            if (sectionHasCards) {
+                grid.appendChild(section);
+                anyVisible = true;
+            }
+        });
+    });
+
+    if (!anyVisible) {
+        grid.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🌿</div>
+                <p>No photocards match your current filters.</p>
+            </div>`;
     }
 }
 
-// Función para aumentar/disminuir repetidas
-function changeRepCount(id, delta) {
-    if (!window.userReps[id]) window.userReps[id] = 1;
-    window.userReps[id] += delta;
-    
-    if (window.userReps[id] < 1) window.userReps[id] = 1; // Mínimo 1 si está en trade
-    
-    localStorage.setItem('userReps', JSON.stringify(window.userReps));
-    updateTradeView();
+// ============================================================
+// BUILD A SINGLE PC WRAPPER
+//   showTradeBadge: only true when called from trade view
+// ============================================================
+function buildPCWrapper(member, status, showTradeBadge = false) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'pc-wrapper';
+    wrapper.id        = `wrapper-${member.id}`;
+
+    // ── Card ──
+    const pc = document.createElement('div');
+    pc.className = `photocard status-${status}`;
+    pc.id        = `pc-${member.id}`;
+
+    const hasImg = member.img && member.img !== 'URL_AQUÍ';
+    if (hasImg) {
+        pc.innerHTML = `
+            <img src="${member.img}" class="pc-image" alt="${member.name}"
+                 onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\'pc-placeholder\\'><span>${member.name}</span></div>';">
+            <div class="pc-name">${member.name}</div>`;
+    } else {
+        pc.innerHTML = `
+            <div class="pc-placeholder"><span>${member.name}</span></div>
+            <div class="pc-name">${member.name}</div>`;
+    }
+
+    // ── Interactions ──
+    let timer, isLongPress = false;
+
+    const startPress = () => {
+        isLongPress = false;
+        timer = setTimeout(() => {
+            isLongPress = true;
+            resetCard(member.id);
+            if (navigator.vibrate) navigator.vibrate(50);
+        }, 800);
+    };
+
+    const handleRelease = (e) => {
+        clearTimeout(timer);
+        if (e.cancelable) e.preventDefault();
+        if (isLongPress) { setTimeout(() => { isLongPress = false; }, 100); return; }
+        handleTap(member.id);
+    };
+
+    pc.addEventListener('mousedown',  (e) => { if (e.detail > 0) startPress(); });
+    pc.addEventListener('mouseup',    (e) => { if (e.detail > 0) handleRelease(e); });
+    pc.addEventListener('mouseleave', ()  => clearTimeout(timer));
+    pc.addEventListener('touchstart', startPress,    { passive: false });
+    pc.addEventListener('touchend',   handleRelease, { passive: false });
+
+    wrapper.appendChild(pc);
+
+    // ── Leaf badge ──
+    // In collection view: show leaf for statuses 2 (Wishlist) and 3 (On the Way). NOT 4 (Trade).
+    // In trade view: show leaf for status 4 only.
+    const badge = buildLeafBadge(status, showTradeBadge);
+    if (badge) wrapper.appendChild(badge);
+
+    return wrapper;
 }
 
-// Bloqueo de menú contextual
+function buildLeafBadge(status, showTradeBadge) {
+    // Determine which statuses to badge
+    let color = null;
+    if (status === 2) color = LEAF_COLORS[2]; // Wishlist — always show
+    if (status === 3) color = LEAF_COLORS[3]; // On the Way — always show
+    if (status === 4 && showTradeBadge) color = LEAF_COLORS[4]; // Trade — only in trade view
+
+    if (!color) return null;
+
+    const badge = document.createElement('div');
+    badge.className = 'leaf-badge-overlay';
+    badge.innerHTML = makeLeafSVG(color);
+    return badge;
+}
+
+// ============================================================
+// SURGICAL SINGLE-CARD UPDATE (no full re-render on tap)
+// ============================================================
+function updateSingleCardUI(memberId, newStatus) {
+    const pc      = document.getElementById(`pc-${memberId}`);
+    const wrapper = document.getElementById(`wrapper-${memberId}`);
+    if (!pc || !wrapper) { renderCollection(); return; }
+
+    // Update class
+    pc.className = `photocard status-${newStatus}`;
+
+    // Rebuild leaf badge
+    const old = wrapper.querySelector('.leaf-badge-overlay');
+    if (old) old.remove();
+    const fresh = buildLeafBadge(newStatus, false); // collection context
+    if (fresh) wrapper.appendChild(fresh);
+
+    // Update era counter
+    updateEraCounter(wrapper);
+}
+
+function updateEraCounter(wrapper) {
+    const section = wrapper.closest('.era-section');
+    if (!section) return;
+    const counter = section.querySelector('.era-count');
+    if (!counter) return;
+    const all   = section.querySelectorAll('.pc-wrapper');
+    const owned = [...all].filter(w => w.querySelector('.photocard')?.classList.contains('status-1')).length;
+    counter.textContent = `${owned}/${all.length}`;
+}
+
+// ============================================================
+// TAP / RESET
+// ============================================================
+function handleTap(memberId) {
+    const cur  = userProgress[memberId] || 0;
+    // Cycle: 0 → 1 (Have) → 2 (Wishlist) → 3 (On the Way) → 4 (Trade) → 0
+    const next = (cur + 1) % 5;
+    userProgress[memberId] = next;
+    localStorage.setItem('userProgress', JSON.stringify(userProgress));
+    updateSingleCardUI(memberId, next);
+    updateStats();
+}
+
+function resetCard(id) {
+    userProgress[id] = 0;
+    localStorage.setItem('userProgress', JSON.stringify(userProgress));
+    updateSingleCardUI(id, 0);
+    updateStats();
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+    const albums = groupsData[currentArtist] || [];
+    let total = 0, owned = 0, tradeCount = 0, wishCount = 0;
+
+    const eraList = document.getElementById('era-stats-list');
+    if (eraList) eraList.innerHTML = '';
+
+    albums.forEach(album => {
+        album.versions.forEach(version => {
+            let vOwned = 0;
+            const vTotal = version.members.length;
+            total += vTotal;
+
+            version.members.forEach(m => {
+                const s = userProgress[m.id] || 0;
+                if (s === 1) { vOwned++; owned++; }
+                if (s === 4) tradeCount++;
+                if (s === 2) wishCount++;
+            });
+
+            const pct = Math.round((vOwned / vTotal) * 100) || 0;
+            if (eraList) {
+                eraList.innerHTML += `
+                    <div class="era-stat-row">
+                        <div class="era-stat-info">
+                            <span>${album.album} — ${version.subname}</span>
+                            <span>${pct}%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width:${pct}%"></div>
+                        </div>
+                    </div>`;
+            }
+        });
+    });
+
+    const pct = Math.round((owned / total) * 100) || 0;
+    const $ = id => document.getElementById(id);
+
+    if ($('stat-obtained'))       $('stat-obtained').innerText        = owned;
+    if ($('stat-missing'))        $('stat-missing').innerText         = total - owned;
+    if ($('stat-reps'))           $('stat-reps').innerText            = tradeCount;
+    if ($('stat-total'))          $('stat-total').innerText           = total;
+    if ($('stat-wishlist'))       $('stat-wishlist').innerText        = wishCount;
+    if ($('stat-wishlist-percent')) $('stat-wishlist-percent').innerText = `${pct}%`;
+    if ($('total-percent-text'))  $('total-percent-text').innerText   = `${pct}% complete`;
+    if ($('total-progress-fill')) $('total-progress-fill').style.width = `${pct}%`;
+
+    const sub = $('stats-subtitle');
+    if (sub) sub.innerText = `${currentArtist.toUpperCase()} · All versions`;
+}
+
+// ============================================================
+// TRADE VIEW — leaf badge visible here for status 4
+// ============================================================
+function renderTradeView() {
+    const tradeGrid = document.getElementById('trade-grid');
+    if (!tradeGrid) return;
+    tradeGrid.innerHTML = '';
+
+    const albums   = groupsData[currentArtist] || [];
+    let   hasTrade = false;
+
+    albums.forEach(album => {
+        album.versions.forEach(version => {
+            version.members.forEach(member => {
+                if ((userProgress[member.id] || 0) !== 4) return;
+                hasTrade = true;
+
+                const count  = window.userReps[member.id] || 1;
+                const card   = document.createElement('div');
+                card.className = 'trade-card-modern';
+                card.id        = `trade-card-${member.id}`;
+
+                const hasImg = member.img && member.img !== 'URL_AQUÍ';
+                const imgSrc = hasImg
+                    ? member.img
+                    : `https://placehold.co/200x300/f5f3f0/9c9289?text=${encodeURIComponent(member.name)}`;
+
+                card.innerHTML = `
+                    <div class="trade-image-wrapper">
+                        <img src="${imgSrc}" class="trade-img"
+                             onerror="this.onerror=null;this.src='https://placehold.co/200x300/f5f3f0/9c9289?text=${encodeURIComponent(member.name)}';">
+                        <div class="trade-count-overlay" id="rep-${member.id}">${count}</div>
+                    </div>
+                    <div class="trade-info-bar">
+                        <button class="count-btn" onclick="changeRepCount('${member.id}', -1)">−</button>
+                        <span class="trade-member-name">${member.name}</span>
+                        <button class="count-btn" onclick="changeRepCount('${member.id}', +1)">+</button>
+                    </div>
+                `;
+                tradeGrid.appendChild(card);
+            });
+        });
+    });
+
+    if (!hasTrade) {
+        tradeGrid.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1">
+                <div class="empty-icon">🌿</div>
+                <p>No photocards marked for trade yet.</p>
+            </div>`;
+    }
+}
+
+function changeRepCount(id, delta) {
+    window.userReps[id] = Math.max(1, (window.userReps[id] || 1) + delta);
+    localStorage.setItem('userReps', JSON.stringify(window.userReps));
+    const overlay = document.getElementById(`rep-${id}`);
+    if (overlay) overlay.textContent = window.userReps[id];
+}
+
+// ============================================================
+// SHARE TRADE LIST — Web Share API with clipboard fallback
+// ============================================================
+function shareTradeList() {
+    const albums = groupsData[currentArtist] || [];
+    const lines  = [`🌿 ${currentArtist.toUpperCase()} — Trade List\n`];
+    let   count  = 0;
+
+    albums.forEach(album => {
+        album.versions.forEach(version => {
+            const trades = version.members.filter(m => (userProgress[m.id] || 0) === 4);
+            if (!trades.length) return;
+            lines.push(`📀 ${album.album} — ${version.subname}`);
+            trades.forEach(m => {
+                const qty = window.userReps[m.id] || 1;
+                lines.push(`  · ${m.name} (x${qty})`);
+                count++;
+            });
+        });
+    });
+
+    if (count === 0) { showToast('No trade cards to share yet.'); return; }
+
+    lines.push('');
+    lines.push('✨ Find me on Leaves Garden MX');
+    lines.push('📸 instagram.com/leavesgardenmx');
+    lines.push('🌿 Made with BiasWall');
+
+    const text = lines.join('\n');
+
+    // Try native Web Share first (works on mobile)
+    if (navigator.share) {
+        navigator.share({ title: 'My Trade List · BiasWall', text })
+            .catch(() => {}); // user cancelled
+    } else {
+        // Desktop fallback: copy to clipboard
+        navigator.clipboard.writeText(text)
+            .then(()  => showToast('Trade list copied to clipboard! 🌿'))
+            .catch(()  => showToast('Could not share. Try again.'));
+    }
+}
+
+// ============================================================
+// EXPORT / RESET
+// ============================================================
+function exportCollection() {
+    const data = { artist: currentArtist, progress: userProgress, date: new Date().toISOString() };
+    const a    = Object.assign(document.createElement('a'), {
+        href:     URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })),
+        download: `biaswall-${currentArtist}-${Date.now()}.json`
+    });
+    a.click();
+    showToast('Collection exported 💾');
+}
+
+function resetAllData() {
+    if (!confirm('Are you sure? This will erase all your saved progress.')) return;
+    userProgress    = {};
+    window.userReps = {};
+    localStorage.removeItem('userProgress');
+    localStorage.removeItem('userReps');
+    renderCollection();
+    updateStats();
+    showToast('All data reset.');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ============================================================
+// BLOCK CONTEXT MENU ON CARDS
+// ============================================================
 document.addEventListener('contextmenu', e => {
     if (e.target.closest('.photocard')) e.preventDefault();
 }, false);
 
-// Render inicial
-renderCollection();
-
-// Escuchar cambios en el switch de POBs (ajustes)
-const pobSwitch = document.getElementById('pob-switch');
-if (pobSwitch) {
-    pobSwitch.addEventListener('change', () => {
-        // Opcional: Guardar en localStorage para que se mantenga la preferencia
-        localStorage.setItem('pref_show_pobs', pobSwitch.checked);
-        renderCollection();
-    });
-}
-
-// Al cargar la página, recuperar la preferencia del usuario
+// ============================================================
+// POB SWITCH
+// ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-    const savedPobPref = localStorage.getItem('pref_show_pobs');
+    // Hint strip
+    if (localStorage.getItem('hint_dismissed')) {
+        const hint = document.getElementById('hint-strip');
+        if (hint) hint.style.display = 'none';
+    }
+
+    // POB toggle
     const pobSwitch = document.getElementById('pob-switch');
-    if (pobSwitch && savedPobPref !== null) {
-        pobSwitch.checked = (savedPobPref === 'true');
+    if (pobSwitch) {
+        const saved = localStorage.getItem('pref_show_pobs');
+        if (saved !== null) pobSwitch.checked = saved === 'true';
+        pobSwitch.addEventListener('change', () => {
+            localStorage.setItem('pref_show_pobs', pobSwitch.checked);
+            renderCollection();
+        });
     }
 });
+
+// ============================================================
+// INITIAL RENDER
+// ============================================================
+renderCollection();
