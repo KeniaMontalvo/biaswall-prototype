@@ -248,7 +248,6 @@ function renderCollection() {
                 //   'have' → status 1
                 //   'way'  → status 3
                 //   'wish' → status 2
-                //   NOTE: Trade (status 4) is NOT a filter tab here
                 let matchesQuantity = true;
                 if (quantityFilter === 'have') matchesQuantity = status === 1;
                 if (quantityFilter === 'way')  matchesQuantity = status === 3;
@@ -330,9 +329,12 @@ function buildPCWrapper(member, status, showTradeBadge = false) {
     wrapper.appendChild(pc);
 
     // ── Leaf badge ──
-    // In collection view: show leaf for statuses 2 (Wishlist) and 3 (On the Way). NOT 4 (Trade).
-    // In trade view: show leaf for status 4 only.
-    const badge = buildLeafBadge(status, showTradeBadge);
+    // Modificado para que incluya el status 4 (Trade)
+    // Mostramos la hoja si:
+    // status 2 (Wishlist/Priority), status 3 (On the Way) O status 4 (Trade)
+    const shouldShowLeaf = (status === 2 || status === 3 || status === 4);
+    
+    const badge = buildLeafBadge(status, shouldShowLeaf); 
     if (badge) wrapper.appendChild(badge);
 
     return wrapper;
@@ -343,7 +345,7 @@ function buildLeafBadge(status, showTradeBadge) {
     let color = null;
     if (status === 2) color = LEAF_COLORS[2]; // Wishlist — always show
     if (status === 3) color = LEAF_COLORS[3]; // On the Way — always show
-    if (status === 4 && showTradeBadge) color = LEAF_COLORS[4]; // Trade — only in trade view
+    if (status === 4) color = LEAF_COLORS[4]; // Trade — always show
 
     if (!color) return null;
 
