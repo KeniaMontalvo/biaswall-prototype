@@ -11,7 +11,6 @@ const groupsData = {
                     members: [
                         { id: "2c4s_group", name: "Group", img: "./assets/bts/2_cool_4_skool/standard/group.jpg" }
                         // Nota: El debut no traía PCs individuales, solo una postal/grupal. 
-                        // La incluimos para que no quede vacío el álbum.
                     ]
                 }
             ]
@@ -49,6 +48,25 @@ const groupsData = {
                         { id: "sla_jimin", name: "Jimin", img: "./assets/bts/skool_luv_affair/standard/jimin.jpg" },
                         { id: "sla_v", name: "V", img: "./assets/bts/skool_luv_affair/standard/v.jpg" },
                         { id: "sla_jk", name: "JK", img: "./assets/bts/skool_luv_affair/standard/jk.jpg" }
+                    ]
+                }
+            ]
+        },
+        {
+            album: "SKOOL LUV AFFAIR SPECIAL ADDITION",
+            year: "2014",
+            versions: [
+                {
+                    subname: "Special Addition",
+                    is_pob: true, // Lo marcamos como POB/Especial
+                    members: [
+                        { id: "sla_sp_rm", name: "RM", img: "./assets/bts/skool_luv_affair_special/standard/rm.jpg" },
+                        { id: "sla_sp_jin", name: "Jin", img: "./assets/bts/skool_luv_affair_special/standard/jin.jpg" },
+                        { id: "sla_sp_suga", name: "Suga", img: "./assets/bts/skool_luv_affair_special/standard/suga.jpg" },
+                        { id: "sla_sp_jhope", name: "J-Hope", img: "./assets/bts/skool_luv_affair_special/standard/jhope.jpg" },
+                        { id: "sla_sp_jimin", name: "Jimin", img: "./assets/bts/skool_luv_affair_special/standard/jimin.jpg" },
+                        { id: "sla_sp_v", name: "V", img: "./assets/bts/skool_luv_affair_special/standard/v.jpg" },
+                        { id: "sla_sp_jk", name: "JK", img: "./assets/bts/skool_luv_affair_special/standard/jk.jpg" }
                     ]
                 }
             ]

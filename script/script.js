@@ -1,4 +1,3 @@
-
 // Variable global para saber qué artista estamos viendo
 let currentArtist = 'bts';
 let userProgress = {}; // { "id_de_la_pc": estado_0_al_3 }
@@ -130,11 +129,17 @@ function renderCollection() {
     const grid = document.getElementById('collection-grid');
     if (!grid) return;
     grid.innerHTML = '';
+
+    const pobSwitch = document.getElementById('pob-switch'); 
+    const showPOBs = pobSwitch ? pobSwitch.checked : false;
     
     const albums = groupsData[currentArtist] || [];
 
     albums.forEach(album => {
         album.versions.forEach(version => {
+
+            if (version.is_pob && !showPOBs) return;
+
             const section = document.createElement('div');
             section.className = 'era-section';
             
@@ -423,3 +428,22 @@ document.addEventListener('contextmenu', e => {
 
 // Render inicial
 renderCollection();
+
+// Escuchar cambios en el switch de POBs (ajustes)
+const pobSwitch = document.getElementById('pob-switch');
+if (pobSwitch) {
+    pobSwitch.addEventListener('change', () => {
+        // Opcional: Guardar en localStorage para que se mantenga la preferencia
+        localStorage.setItem('pref_show_pobs', pobSwitch.checked);
+        renderCollection();
+    });
+}
+
+// Al cargar la página, recuperar la preferencia del usuario
+window.addEventListener('DOMContentLoaded', () => {
+    const savedPobPref = localStorage.getItem('pref_show_pobs');
+    const pobSwitch = document.getElementById('pob-switch');
+    if (pobSwitch && savedPobPref !== null) {
+        pobSwitch.checked = (savedPobPref === 'true');
+    }
+});
