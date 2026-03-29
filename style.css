@@ -661,3 +661,264 @@ input:checked + .slider:before { transform: translateX(18px); }
     white-space: nowrap; box-shadow: var(--shadow-md);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ============================================================
+   OTW TRACKING BUTTON
+   Lives on .pc-wrapper (sibling of .photocard, NOT inside it)
+   so it is completely outside the card's tap event listeners.
+   Positioned absolute relative to the wrapper.
+   ============================================================ */
+.pc-wrapper {
+    position: relative; /* needed for absolute children: leaf badge + otw btn */
+}
+
+.otw-info-btn {
+    position: absolute;
+    /* sits at bottom-right, just inside the card edge */
+    bottom: 18px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(249, 228, 160, 0.95);
+    border: 1.5px solid rgba(180, 160, 60, 0.35);
+    color: #7a6a20;
+    font-size: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;        /* above leaf badge (z-index: 10) */
+    padding: 0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    transition: background 0.15s, transform 0.1s;
+    /* Button must NOT inherit touch-action:none from photocard */
+    touch-action: auto;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.otw-info-btn:active {
+    background: #f9e4a0;
+    transform: scale(0.9);
+}
+
+/* ============================================================
+   TRACKING MODAL (bottom sheet)
+   ============================================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    z-index: 9000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    transition: background 0.28s ease;
+}
+
+.modal-overlay.modal-open {
+    background: rgba(0, 0, 0, 0.38);
+}
+
+.modal-sheet {
+    width: 100%;
+    max-width: 430px;
+    background: #ffffff;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.modal-overlay.modal-open .modal-sheet {
+    transform: translateY(0);
+}
+
+.modal-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: #dbd6ce;
+    margin: 12px auto 0;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 12px;
+    border-bottom: 1px solid #ece9e4;
+}
+
+.modal-title-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-leaf-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fffde8;
+    border: 1.5px solid #f9e4a0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    margin: 0;
+    color: #2c2420;
+    line-height: 1.2;
+}
+
+.modal-subtitle {
+    font-size: 12px;
+    color: #9c9289;
+    margin: 2px 0 0;
+}
+
+.modal-close {
+    background: #f5f3f0;
+    border: none;
+    color: #9c9289;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+.modal-close:active { background: #dbd6ce; }
+
+.modal-body {
+    padding: 16px 20px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.modal-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #9c9289;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #ece9e4;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #2c2420;
+    background: #fafafa;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+}
+.modal-input:focus {
+    border-color: #f9e4a0;
+    background: #ffffff;
+}
+
+.modal-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.modal-input-row .modal-input { flex: 1; }
+
+.modal-copy-btn {
+    background: #f5f3f0;
+    border: 1.5px solid #ece9e4;
+    border-radius: 10px;
+    color: #9c9289;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+.modal-copy-btn:active { background: #f9e4a0; color: #7a6a20; }
+
+.modal-textarea {
+    resize: vertical;
+    min-height: 70px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    padding: 14px 20px 0;
+}
+
+.modal-btn-secondary {
+    flex: 1;
+    padding: 12px;
+    background: #f5f3f0;
+    border: 1.5px solid #ece9e4;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #9c9289;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.modal-btn-secondary:active { background: #dbd6ce; }
+
+.modal-btn-primary {
+    flex: 2;
+    padding: 12px;
+    background: #2c2420;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.modal-btn-primary:active { opacity: 0.8; }
+
+/* ============================================================
+   VERSION TAG PILLS (POB / JP) — for era section headers
+   ============================================================ */
+.version-tag {
+    font-size: 8px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    align-self: center;
+}
+.tag-pob   { background: #fde8e8; color: #b83535; }
+.tag-japan { background: #e8f0fe; color: #2a56c6; }

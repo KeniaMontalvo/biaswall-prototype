@@ -1,3 +1,9 @@
+// Slug helper: converts display name to file-safe lowercase key
+// "J-Hope" → "jhope", "RM" → "rm", "JK" → "jk"
+function toSlug(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
 // database.js
 const groupsData = {
     bts: [
@@ -311,14 +317,14 @@ const groupsData = {
             versions: [
                 {
                     subname: "Cream",
-                    members: ["RM", "Jin", "Suga", "JHope", "Jimin", "V", "JK"].map(m => ({
-                        id: `butter_c_${m.toLowerCase()}`, name: m, img: `./assets/bts/butter/cream/${m.toLowerCase()}.jpg`
+                    members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"].map(m => ({
+                        id: `butter_c_${toSlug(m)}`, name: m, img: `./assets/bts/butter/cream/${toSlug(m)}.jpg`
                     }))
                 },
                 {
                     subname: "Peaches",
-                    members: ["RM", "Jin", "Suga", "JHope", "Jimin", "V", "JK"].map(m => ({
-                        id: `butter_p_${m.toLowerCase()}`, name: m, img: `./assets/bts/butter/peaches/${m.toLowerCase()}.jpg`
+                    members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"].map(m => ({
+                        id: `butter_p_${toSlug(m)}`, name: m, img: `./assets/bts/butter/peaches/${toSlug(m)}.jpg`
                     }))
                 }
             ]
@@ -329,14 +335,14 @@ const groupsData = {
             versions: [
                 {
                     subname: "Standard",
-                    members: ["RM", "Jin", "Suga", "JHope", "Jimin", "V", "JK"].map(m => ({
-                        id: `proof_st_${m.toLowerCase()}`, name: m, img: `./assets/bts/proof/standard/${m.toLowerCase()}.jpg`
+                    members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"].map(m => ({
+                        id: `proof_st_${toSlug(m)}`, name: m, img: `./assets/bts/proof/standard/${toSlug(m)}.jpg`
                     }))
                 },
                 {
                     subname: "Compact",
-                    members: ["RM", "Jin", "Suga", "JHope", "Jimin", "V", "JK"].map(m => ({
-                        id: `proof_cp_${m.toLowerCase()}`, name: m, img: `./assets/bts/proof/compact/${m.toLowerCase()}.jpg`
+                    members: ["RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "JK"].map(m => ({
+                        id: `proof_cp_${toSlug(m)}`, name: m, img: `./assets/bts/proof/compact/${toSlug(m)}.jpg`
                     }))
                 }
             ]
@@ -430,7 +436,44 @@ const groupsData = {
                         { id: "arirang_wev_unit1", name: "Unit 1", img: "./assets/bts/arirang/weverse/unit1.jpg" },
                         { id: "arirang_wev_unit2", name: "Unit 2", img: "./assets/bts/arirang/weverse/unit2.jpg" }
                     ]
+                },
+                // ── POBs: tagged with is_pob: true ──
+                // Shown only when "Include POBs" is ON in Settings.
+                // Add more POB versions below following the same pattern.
+                {
+                    subname: "POB — Weverse Shop",
+                    is_pob: true,
+                    members: [
+                        { id: "arirang_pob_ws_rm",    name: "RM",     img: "./assets/bts/arirang/pob/weverse_shop/rm.jpg" },
+                        { id: "arirang_pob_ws_jin",   name: "Jin",    img: "./assets/bts/arirang/pob/weverse_shop/jin.jpg" },
+                        { id: "arirang_pob_ws_suga",  name: "Suga",   img: "./assets/bts/arirang/pob/weverse_shop/suga.jpg" },
+                        { id: "arirang_pob_ws_jhope", name: "J-Hope", img: "./assets/bts/arirang/pob/weverse_shop/jhope.jpg" },
+                        { id: "arirang_pob_ws_jimin", name: "Jimin",  img: "./assets/bts/arirang/pob/weverse_shop/jimin.jpg" },
+                        { id: "arirang_pob_ws_v",     name: "V",      img: "./assets/bts/arirang/pob/weverse_shop/v.jpg" },
+                        { id: "arirang_pob_ws_jk",    name: "JK",     img: "./assets/bts/arirang/pob/weverse_shop/jk.jpg" }
+                    ]
+                },
+                {
+                    subname: "POB — Aladin",
+                    is_pob: true,
+                    members: [
+                        { id: "arirang_pob_al_rm",    name: "RM",     img: "./assets/bts/arirang/pob/aladin/rm.jpg" },
+                        { id: "arirang_pob_al_jin",   name: "Jin",    img: "./assets/bts/arirang/pob/aladin/jin.jpg" },
+                        { id: "arirang_pob_al_suga",  name: "Suga",   img: "./assets/bts/arirang/pob/aladin/suga.jpg" },
+                        { id: "arirang_pob_al_jhope", name: "J-Hope", img: "./assets/bts/arirang/pob/aladin/jhope.jpg" },
+                        { id: "arirang_pob_al_jimin", name: "Jimin",  img: "./assets/bts/arirang/pob/aladin/jimin.jpg" },
+                        { id: "arirang_pob_al_v",     name: "V",      img: "./assets/bts/arirang/pob/aladin/v.jpg" },
+                        { id: "arirang_pob_al_jk",    name: "JK",     img: "./assets/bts/arirang/pob/aladin/jk.jpg" }
+                    ]
                 }
+                // ── Japanese releases: tagged with is_japan: true ──
+                // Shown only when "Include Japanese albums" is ON in Settings.
+                // Example pattern:
+                // {
+                //     subname: "Japan Press",
+                //     is_japan: true,
+                //     members: [ ... ]
+                // }
             ]
         }
     ],

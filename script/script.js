@@ -301,10 +301,17 @@ function buildPCWrapper(member, status, showTradeBadge = false) {
             <div class="pc-name">${member.name}</div>`;
     }
 
-    // ── Interactions ──
-    let timer, isLongPress = false;
+    // ── Scroll-safe tap (movement threshold) ──
+    // If the finger moves more than THRESHOLD px between touchstart and touchend,
+    // we treat it as a scroll and skip the tap action.
+    const THRESHOLD = 8;
+    let startX = 0, startY = 0;
+    let timer = null, isLongPress = false;
 
-    const startPress = () => {
+    const onTouchStart = (e) => {
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
         isLongPress = false;
         timer = setTimeout(() => {
             isLongPress = true;
@@ -313,31 +320,74 @@ function buildPCWrapper(member, status, showTradeBadge = false) {
         }, 800);
     };
 
-    const handleRelease = (e) => {
+    const onTouchMove = () => { clearTimeout(timer); };
+
+    const onTouchEnd = (e) => {
         clearTimeout(timer);
-        if (e.cancelable) e.preventDefault();
         if (isLongPress) { setTimeout(() => { isLongPress = false; }, 100); return; }
+        const t  = e.changedTouches[0];
+        const dx = Math.abs(t.clientX - startX);
+        const dy = Math.abs(t.clientY - startY);
+        if (dx > THRESHOLD || dy > THRESHOLD) return; // was a scroll, not a tap
+        if (e.cancelable) e.preventDefault();
         handleTap(member.id);
     };
 
-    pc.addEventListener('mousedown',  (e) => { if (e.detail > 0) startPress(); });
-    pc.addEventListener('mouseup',    (e) => { if (e.detail > 0) handleRelease(e); });
-    pc.addEventListener('mouseleave', ()  => clearTimeout(timer));
-    pc.addEventListener('touchstart', startPress,    { passive: false });
-    pc.addEventListener('touchend',   handleRelease, { passive: false });
+    // Mouse (desktop)
+    pc.addEventListener('mousedown',  (e) => {
+        if (e.detail > 0) {
+            startX = e.clientX; startY = e.clientY;
+            isLongPress = false;
+            timer = setTimeout(() => { isLongPress = true; resetCard(member.id); }, 800);
+        }
+    });
+    pc.addEventListener('mouseup', (e) => {
+        clearTimeout(timer);
+        if (isLongPress) { setTimeout(() => { isLongPress = false; }, 100); return; }
+        if (Math.abs(e.clientX - startX) > THRESHOLD || Math.abs(e.clientY - startY) > THRESHOLD) return;
+        handleTap(member.id);
+    });
+    pc.addEventListener('mouseleave', () => clearTimeout(timer));
+
+    // Touch (mobile)
+    pc.addEventListener('touchstart', onTouchStart, { passive: true });
+    pc.addEventListener('touchmove',  onTouchMove,  { passive: true });
+    pc.addEventListener('touchend',   onTouchEnd,   { passive: false });
 
     wrapper.appendChild(pc);
 
-    // ── Leaf badge ──
-    // Modificado para que incluya el status 4 (Trade)
-    // Mostramos la hoja si:
-    // status 2 (Wishlist/Priority), status 3 (On the Way) O status 4 (Trade)
+    // ── Leaf badge — appended to wrapper (outside overflow:hidden) ──
     const shouldShowLeaf = (status === 2 || status === 3 || status === 4);
-    
-    const badge = buildLeafBadge(status, shouldShowLeaf); 
+    const badge = buildLeafBadge(status, shouldShowLeaf);
     if (badge) wrapper.appendChild(badge);
 
+    // ── OTW truck button — also on wrapper, NOT inside pc ──
+    // Being a sibling of .photocard means it is completely outside the card's
+    // event listeners, so it will never accidentally trigger handleTap.
+    if (status === 3) {
+        const otwBtn = buildOTWButton(member.id, member.name);
+        wrapper.appendChild(otwBtn);
+    }
+
     return wrapper;
+}
+
+// Builds the truck button as a positioned element on the wrapper
+function buildOTWButton(memberId, memberName) {
+    const btn = document.createElement('button');
+    btn.className   = 'otw-info-btn';
+    btn.title       = 'Add tracking info';
+    btn.innerHTML   = `<i class="fa-solid fa-truck-fast"></i>`;
+    btn.setAttribute('data-member-id',   memberId);
+    btn.setAttribute('data-member-name', memberName);
+
+    // Use 'click' — works on both mouse and touch without any conflict
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation(); // belt-and-suspenders: prevent any bubble to wrapper
+        openTrackingModal(memberId, memberName);
+    });
+
+    return btn;
 }
 
 function buildLeafBadge(status, showTradeBadge) {
@@ -363,16 +413,27 @@ function updateSingleCardUI(memberId, newStatus) {
     const wrapper = document.getElementById(`wrapper-${memberId}`);
     if (!pc || !wrapper) { renderCollection(); return; }
 
-    // Update class
+    // 1. Update card status class
     pc.className = `photocard status-${newStatus}`;
 
-    // Rebuild leaf badge
-    const old = wrapper.querySelector('.leaf-badge-overlay');
-    if (old) old.remove();
-    const fresh = buildLeafBadge(newStatus, false); // collection context
+    // 2. Rebuild leaf badge on wrapper
+    const oldBadge = wrapper.querySelector('.leaf-badge-overlay');
+    if (oldBadge) oldBadge.remove();
+    const shouldShowLeaf = (newStatus === 2 || newStatus === 3 || newStatus === 4);
+    const fresh = buildLeafBadge(newStatus, shouldShowLeaf);
     if (fresh) wrapper.appendChild(fresh);
 
-    // Update era counter
+    // 3. Rebuild OTW button on wrapper (show only when status 3)
+    const oldOtw = wrapper.querySelector('.otw-info-btn');
+    if (oldOtw) oldOtw.remove();
+    if (newStatus === 3) {
+        // Recover member name from the pc-name label inside the card
+        const memberName = pc.querySelector('.pc-name')?.textContent?.trim() || '';
+        const otwBtn = buildOTWButton(memberId, memberName);
+        wrapper.appendChild(otwBtn);
+    }
+
+    // 4. Update era counter
     updateEraCounter(wrapper);
 }
 
@@ -567,8 +628,13 @@ function shareTradeList() {
 // EXPORT / RESET
 // ============================================================
 function exportCollection() {
-    const data = { artist: currentArtist, progress: userProgress, date: new Date().toISOString() };
-    const a    = Object.assign(document.createElement('a'), {
+    const data = {
+        artist:       currentArtist,
+        progress:     userProgress,
+        trackingData: trackingData,
+        date:         new Date().toISOString()
+    };
+    const a = Object.assign(document.createElement('a'), {
         href:     URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })),
         download: `biaswall-${currentArtist}-${Date.now()}.json`
     });
@@ -580,11 +646,114 @@ function resetAllData() {
     if (!confirm('Are you sure? This will erase all your saved progress.')) return;
     userProgress    = {};
     window.userReps = {};
+    trackingData    = {};
     localStorage.removeItem('userProgress');
     localStorage.removeItem('userReps');
+    localStorage.removeItem('trackingData');
     renderCollection();
     updateStats();
     showToast('All data reset.');
+}
+
+// ============================================================
+// OTW TRACKING MODAL
+// ============================================================
+// Tracking data store
+let trackingData = JSON.parse(localStorage.getItem('trackingData') || '{}');
+
+function openTrackingModal(memberId, memberName) {
+    const existing = document.getElementById('tracking-modal');
+    if (existing) existing.remove();
+
+    const saved = trackingData[memberId] || { carrier: '', trackingNumber: '', notes: '' };
+
+    const LEAF_SVG = `<svg viewBox="0 0 24 24" style="width:16px;height:16px;display:block"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z" fill="#F9E4A0"/></svg>`;
+
+    const modal = document.createElement('div');
+    modal.id        = 'tracking-modal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title-block">
+                    <span class="modal-leaf-icon">${LEAF_SVG}</span>
+                    <div>
+                        <h3 class="modal-title">On the Way</h3>
+                        <p class="modal-subtitle">${memberName}</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeTrackingModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="modal-field">
+                    <label class="modal-label">Carrier / Shop</label>
+                    <input id="track-carrier" class="modal-input" type="text"
+                           placeholder="e.g. Shopee, eBay, Weverse Shop…"
+                           value="${saved.carrier}">
+                </div>
+                <div class="modal-field">
+                    <label class="modal-label">Tracking Number</label>
+                    <div class="modal-input-row">
+                        <input id="track-number" class="modal-input" type="text"
+                               placeholder="e.g. 1Z999AA10123456784"
+                               value="${saved.trackingNumber}">
+                        <button class="modal-copy-btn" onclick="copyTrackingNumber()" title="Copy">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label class="modal-label">Notes</label>
+                    <textarea id="track-notes" class="modal-input modal-textarea"
+                              placeholder="e.g. Bought at Seúl Market · Estimated arrival: April 10"
+                              rows="3">${saved.notes}</textarea>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn-secondary" onclick="closeTrackingModal()">Cancel</button>
+                <button class="modal-btn-primary" onclick="saveTracking('${memberId}')">Save</button>
+            </div>
+        </div>
+    `;
+
+    modal.addEventListener('click', (ev) => {
+        if (ev.target === modal) closeTrackingModal();
+    });
+
+    document.body.appendChild(modal);
+    // Trigger animation on next frame
+    requestAnimationFrame(() => modal.classList.add('modal-open'));
+}
+
+function closeTrackingModal() {
+    const modal = document.getElementById('tracking-modal');
+    if (!modal) return;
+    modal.classList.remove('modal-open');
+    setTimeout(() => modal.remove(), 280);
+}
+
+function saveTracking(memberId) {
+    trackingData[memberId] = {
+        carrier:        (document.getElementById('track-carrier')?.value  || '').trim(),
+        trackingNumber: (document.getElementById('track-number')?.value   || '').trim(),
+        notes:          (document.getElementById('track-notes')?.value    || '').trim(),
+    };
+    localStorage.setItem('trackingData', JSON.stringify(trackingData));
+    closeTrackingModal();
+    showToast('Tracking info saved 🌿');
+}
+
+function copyTrackingNumber() {
+    const val = (document.getElementById('track-number')?.value || '').trim();
+    if (!val) { showToast('No tracking number to copy.'); return; }
+    navigator.clipboard.writeText(val)
+        .then(() => showToast('Tracking number copied!'))
+        .catch(() => showToast('Could not copy.'));
 }
 
 // ============================================================
