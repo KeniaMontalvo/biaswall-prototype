@@ -91,7 +91,9 @@ const groupsData = {
                         { id: "dw_jimin", name: "Jimin", img: "./assets/bts/dark_and_wild/standard/jimin.jpg" },
                         { id: "dw_v", name: "V", img: "./assets/bts/dark_and_wild/standard/v.jpg" },
                         { id: "dw_jk", name: "JK", img: "./assets/bts/dark_and_wild/standard/jk.jpg" },
-                        { id: "dw_group", name: "Group", img: "./assets/bts/dark_and_wild/standard/group.jpg" }
+                        { id: "dw_group1", name: "Group", img: "./assets/bts/dark_and_wild/standard/group1.jpg" },
+                        { id: "dw_group2", name: "Group", img: "./assets/bts/dark_and_wild/standard/group2.jpg" },
+                        { id: "dw_group3", name: "Group", img: "./assets/bts/dark_and_wild/standard/group3.jpg" }
                     ]
                 }
             ]
@@ -101,7 +103,7 @@ const groupsData = {
             year: "2015",
             versions: [
                 {
-                    subname: "Pink",
+                    subname: "Pink/White",
                     members: [
                         { id: "hyyh1_p_rm", name: "RM", img: "./assets/bts/hyyh_pt1/pink/rm.jpg" },
                         { id: "hyyh1_p_jin", name: "Jin", img: "./assets/bts/hyyh_pt1/pink/jin.jpg" },
@@ -109,21 +111,10 @@ const groupsData = {
                         { id: "hyyh1_p_jhope", name: "J-Hope", img: "./assets/bts/hyyh_pt1/pink/jhope.jpg" },
                         { id: "hyyh1_p_jimin", name: "Jimin", img: "./assets/bts/hyyh_pt1/pink/jimin.jpg" },
                         { id: "hyyh1_p_v", name: "V", img: "./assets/bts/hyyh_pt1/pink/v.jpg" },
-                        { id: "hyyh1_p_jk", name: "JK", img: "./assets/bts/hyyh_pt1/pink/jk.jpg" }
+                        { id: "hyyh1_p_jk", name: "JK", img: "./assets/bts/hyyh_pt1/pink/jk.jpg" },
+                        { id: "hyyh1_p_group", name: "Group", img: "./assets/bts/hyyh_pt1/pink/group.jpg" }
                     ]
                 },
-                {
-                    subname: "White",
-                    members: [
-                        { id: "hyyh1_w_rm", name: "RM", img: "./assets/bts/hyyh_pt1/white/rm.jpg" },
-                        { id: "hyyh1_w_jin", name: "Jin", img: "./assets/bts/hyyh_pt1/white/jin.jpg" },
-                        { id: "hyyh1_w_suga", name: "Suga", img: "./assets/bts/hyyh_pt1/white/suga.jpg" },
-                        { id: "hyyh1_w_jhope", name: "J-Hope", img: "./assets/bts/hyyh_pt1/white/jhope.jpg" },
-                        { id: "hyyh1_w_jimin", name: "Jimin", img: "./assets/bts/hyyh_pt1/white/jimin.jpg" },
-                        { id: "hyyh1_w_v", name: "V", img: "./assets/bts/hyyh_pt1/white/v.jpg" },
-                        { id: "hyyh1_w_jk", name: "JK", img: "./assets/bts/hyyh_pt1/white/jk.jpg" }
-                    ]
-                }
             ]
         },
         {
@@ -131,7 +122,7 @@ const groupsData = {
             year: "2015",
             versions: [
                 {
-                    subname: "Blue",
+                    subname: "Blue/Peach",
                     members: [
                         { id: "hyyh2_b_rm", name: "RM", img: "./assets/bts/hyyh_pt2/blue/rm.jpg" },
                         { id: "hyyh2_b_jin", name: "Jin", img: "./assets/bts/hyyh_pt2/blue/jin.jpg" },
@@ -139,21 +130,10 @@ const groupsData = {
                         { id: "hyyh2_b_jhope", name: "J-Hope", img: "./assets/bts/hyyh_pt2/blue/jhope.jpg" },
                         { id: "hyyh2_b_jimin", name: "Jimin", img: "./assets/bts/hyyh_pt2/blue/jimin.jpg" },
                         { id: "hyyh2_b_v", name: "V", img: "./assets/bts/hyyh_pt2/blue/v.jpg" },
-                        { id: "hyyh2_b_jk", name: "JK", img: "./assets/bts/hyyh_pt2/blue/jk.jpg" }
+                        { id: "hyyh2_b_jk", name: "JK", img: "./assets/bts/hyyh_pt2/blue/jk.jpg" },
+                        { id: "hyyh2_b_group", name: "Group", img: "./assets/bts/hyyh_pt2/blue/group.jpg" }
                     ]
                 },
-                {
-                    subname: "Peach",
-                    members: [
-                        { id: "hyyh2_p_rm", name: "RM", img: "./assets/bts/hyyh_pt2/peach/rm.jpg" },
-                        { id: "hyyh2_p_jin", name: "Jin", img: "./assets/bts/hyyh_pt2/peach/jin.jpg" },
-                        { id: "hyyh2_p_suga", name: "Suga", img: "./assets/bts/hyyh_pt2/peach/suga.jpg" },
-                        { id: "hyyh2_p_jhope", name: "J-Hope", img: "./assets/bts/hyyh_pt2/peach/jhope.jpg" },
-                        { id: "hyyh2_p_jimin", name: "Jimin", img: "./assets/bts/hyyh_pt2/peach/jimin.jpg" },
-                        { id: "hyyh2_p_v", name: "V", img: "./assets/bts/hyyh_pt2/peach/v.jpg" },
-                        { id: "hyyh2_p_jk", name: "JK", img: "./assets/bts/hyyh_pt2/peach/jk.jpg" }
-                    ]
-                }
             ]
         },
         {
