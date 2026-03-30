@@ -397,11 +397,24 @@ function buildLeafBadge(status, showTradeBadge) {
     if (status === 3) color = LEAF_COLORS[3]; // On the Way — always show
     if (status === 4) color = LEAF_COLORS[4]; // Trade — always show
 
+    // In the main collection view, only show the on the way badge if it's status 3 and we're in the On the Way view
+    if (status === 3) {
+        color = LEAF_COLORS[3]; 
+    } else if (status === 4 && showTradeBadge) {
+        color = LEAF_COLORS[4];
+    }
+
     if (!color) return null;
 
     const badge = document.createElement('div');
     badge.className = 'leaf-badge-overlay';
+
+    if (status === 3) {
     badge.innerHTML = makeLeafSVG(color);
+    } else {
+        badge.innerHTML = makeLeafSVG(color);
+    }
+    
     return badge;
 }
 

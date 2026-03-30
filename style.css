@@ -321,6 +321,15 @@ body  {
 }
 @media (max-width: 340px) { .pc-grid { grid-template-columns: repeat(3, 1fr); } }
 
+.collection-view .status-3 .leaf-badge-overlay {
+    display: none;
+}
+
+.on-the-way-view .status-3 .leaf-badge-overlay {
+    display: block;
+    opacity: 1;
+}
+
 /* ============================================================
    PHOTOCARD  (overflow:hidden fixes the border-radius clipping)
    ============================================================ */
