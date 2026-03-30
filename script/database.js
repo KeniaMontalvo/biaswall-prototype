@@ -60,10 +60,11 @@ const groupsData = {
         {
             album: "SKOOL LUV AFFAIR SPECIAL ADDITION",
             year: "2014",
+            category: "special",
             versions: [
                 {
                     subname: "Special Addition",
-                    is_pob: true, // Lo marcamos como POB/Especial
+                    //is_pob: true, // Lo marcamos como POB/Especial
                     members: [
                         { id: "sla_sp_rm", name: "RM", img: "./assets/bts/skool_luv_affair_special/standard/rm.jpg" },
                         { id: "sla_sp_jin", name: "Jin", img: "./assets/bts/skool_luv_affair_special/standard/jin.jpg" },

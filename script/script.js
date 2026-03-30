@@ -230,10 +230,17 @@ function renderCollection() {
     grid.innerHTML = '';
 
     const showPOBs = document.getElementById('pob-switch')?.checked ?? true;
+    const showSpecial = document.getElementById('toggle-sa')?.checked ?? true;
+    const showJapanese = document.getElementById('toggle-jp')?.checked ?? true;
+
     const albums   = groupsData[currentArtist] || [];
     let   anyVisible = false;
 
     albums.forEach(album => {
+
+        if (album.category === 'special' && !showSpecial) return;
+        if (album.category === 'japanese' && !showJapanese) return;
+
         album.versions.forEach(version => {
             if (version.is_pob && !showPOBs) return;
 
@@ -916,6 +923,28 @@ window.addEventListener('DOMContentLoaded', () => {
         if (saved !== null) pobSwitch.checked = saved === 'true';
         pobSwitch.addEventListener('change', () => {
             localStorage.setItem('pref_show_pobs', pobSwitch.checked);
+            renderCollection();
+        });
+    }
+
+    // 2. Special Albums toggle
+    const saSwitch = document.getElementById('toggle-sa');
+    if (saSwitch) {
+        const saved = localStorage.getItem('pref_show_special');
+        if (saved !== null) saSwitch.checked = saved === 'true';
+        saSwitch.addEventListener('change', () => {
+            localStorage.setItem('pref_show_special', saSwitch.checked);
+            renderCollection(); // Esto hará que el álbum aparezca/desaparezca al instante
+        });
+    }
+
+    // 3. Japanese Albums toggle
+    const jpSwitch = document.getElementById('toggle-jp');
+    if (jpSwitch) {
+        const saved = localStorage.getItem('pref_show_japanese');
+        if (saved !== null) jpSwitch.checked = saved === 'true';
+        jpSwitch.addEventListener('change', () => {
+            localStorage.setItem('pref_show_japanese', jpSwitch.checked);
             renderCollection();
         });
     }
