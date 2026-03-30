@@ -36,7 +36,6 @@ const CARRIERS = [
     { id: 'gls',        label: 'GLS',              url: 'https://gls-group.com/track/{n}' },
     { id: 'shopee',     label: 'Shopee',           url: 'https://shopee.com.mx/order' },
     { id: 'weverse',    label: 'Weverse Shop',     url: 'https://shop.weverse.io/ko/orders' },
-    { id: 'ktown4u',    label: 'Ktown4u',          url: 'https://www.ktown4u.com/mypage/orderList' },
     { id: 'other',      label: 'Other / Manual',   url: '' },
 ];
 
@@ -653,7 +652,7 @@ function openTrackingModal(memberId, memberName, albumLabel) {
                 <div class="modal-field">
                     <label class="modal-label">Notes</label>
                     <textarea id="track-notes" class="modal-input modal-textarea"
-                              placeholder="e.g. Estimated arrival April 10 · from Ktown4u"
+                              placeholder="e.g. Estimated arrival April 10 · from Leaves Garden 🌿"
                               rows="2">${saved.notes || ''}</textarea>
                 </div>
 
