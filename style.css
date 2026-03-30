@@ -321,15 +321,6 @@ body  {
 }
 @media (max-width: 340px) { .pc-grid { grid-template-columns: repeat(3, 1fr); } }
 
-.collection-view .status-3 .leaf-badge-overlay {
-    display: none;
-}
-
-.on-the-way-view .status-3 .leaf-badge-overlay {
-    display: block;
-    opacity: 1;
-}
-
 /* ============================================================
    PHOTOCARD  (overflow:hidden fixes the border-radius clipping)
    ============================================================ */
@@ -672,62 +663,172 @@ input:checked + .slider:before { transform: translateX(18px); }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ============================================================
-   OTW TRACKING BUTTON
-   Lives on .pc-wrapper (sibling of .photocard, NOT inside it)
-   so it is completely outside the card's tap event listeners.
-   Positioned absolute relative to the wrapper.
+   ON THE WAY VIEW
    ============================================================ */
-.pc-wrapper {
-    position: relative; /* needed for absolute children: leaf badge + otw btn */
+.otw-view-header { padding: 4px 0 18px; }
+
+.otw-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.otw-info-btn {
+.otw-card {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    background: #fffde8;
+    border: 1.5px solid #f9e4a0;
+    border-radius: 14px;
+    padding: 12px;
+    transition: box-shadow 0.2s;
+}
+.otw-card:active { box-shadow: 0 2px 12px rgba(249,228,160,0.5); }
+
+/* Thumbnail */
+.otw-card-img-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 56px;
+}
+.otw-card-img {
+    width: 56px;
+    height: 84px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+    background: #f5f3f0;
+}
+.otw-leaf-chip {
     position: absolute;
-    /* sits at bottom-right, just inside the card edge */
-    bottom: 18px;
-    right: 2px;
-    width: 20px;
-    height: 20px;
+    top: -5px;
+    right: -5px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    background: rgba(249, 228, 160, 0.95);
-    border: 1.5px solid rgba(180, 160, 60, 0.35);
+    background: #fff;
+    border: 1px solid #f9e4a0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+.otw-leaf-chip svg { width: 11px; height: 11px; display: block; }
+
+/* Info block */
+.otw-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0; /* allow text truncation */
+}
+.otw-card-top {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.otw-member-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: #2c2420;
+}
+.otw-album-name {
+    font-size: 10px;
+    color: #9c9289;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.otw-status-line {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.otw-carrier-label {
+    font-size: 11px;
+    font-weight: 700;
     color: #7a6a20;
-    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.otw-tracking-num {
+    font-size: 11px;
+    color: #2c2420;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.3px;
+    word-break: break-all;
+}
+.otw-no-info {
+    font-size: 11px;
+    color: #c5b89a;
+    font-style: italic;
+}
+.otw-notes {
+    font-size: 10px;
+    color: #9c9289;
+    line-height: 1.4;
+    font-style: italic;
+}
+
+/* Action buttons */
+.otw-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.otw-edit-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.8);
+    border: 1.5px solid #f0e48a;
+    color: #7a6a20;
+    font-size: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 20;        /* above leaf badge (z-index: 10) */
     padding: 0;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-    transition: background 0.15s, transform 0.1s;
-    /* Button must NOT inherit touch-action:none from photocard */
-    touch-action: auto;
-    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
 }
+.otw-edit-btn:active { background: #f9e4a0; }
 
-.otw-info-btn:active {
-    background: #f9e4a0;
-    transform: scale(0.9);
+.otw-track-btn {
+    padding: 5px 8px;
+    border-radius: 8px;
+    background: #2c2420;
+    border: none;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+    letter-spacing: 0.2px;
 }
+.otw-track-btn:active { opacity: 0.75; }
 
 /* ============================================================
-   TRACKING MODAL (bottom sheet)
+   TRACKING MODAL
    ============================================================ */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0);
+    background: rgba(0,0,0,0);
     z-index: 9000;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     transition: background 0.28s ease;
 }
-
-.modal-overlay.modal-open {
-    background: rgba(0, 0, 0, 0.38);
-}
+.modal-overlay.modal-open { background: rgba(0,0,0,0.38); }
 
 .modal-sheet {
     width: 100%;
@@ -736,12 +837,9 @@ input:checked + .slider:before { transform: translateX(18px); }
     border-radius: 20px 20px 0 0;
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
     transform: translateY(100%);
-    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    transition: transform 0.28s cubic-bezier(0.32,0.72,0,1);
 }
-
-.modal-overlay.modal-open .modal-sheet {
-    transform: translateY(0);
-}
+.modal-overlay.modal-open .modal-sheet { transform: translateY(0); }
 
 .modal-handle {
     width: 36px;
@@ -758,12 +856,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     padding: 14px 20px 12px;
     border-bottom: 1px solid #ece9e4;
 }
-
-.modal-title-block {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+.modal-title-block { display: flex; align-items: center; gap: 10px; }
 
 .modal-leaf-icon {
     width: 30px;
@@ -776,6 +869,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     justify-content: center;
     flex-shrink: 0;
 }
+.modal-leaf-icon svg { width: 16px; height: 16px; display: block; }
 
 .modal-title {
     font-family: 'DM Serif Display', serif;
@@ -784,12 +878,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     color: #2c2420;
     line-height: 1.2;
 }
-
-.modal-subtitle {
-    font-size: 12px;
-    color: #9c9289;
-    margin: 2px 0 0;
-}
+.modal-subtitle { font-size: 11px; color: #9c9289; margin: 2px 0 0; }
 
 .modal-close {
     background: #f5f3f0;
@@ -805,7 +894,6 @@ input:checked + .slider:before { transform: translateX(18px); }
     justify-content: center;
     padding: 0;
     flex-shrink: 0;
-    transition: background 0.15s;
 }
 .modal-close:active { background: #dbd6ce; }
 
@@ -813,15 +901,9 @@ input:checked + .slider:before { transform: translateX(18px); }
     padding: 16px 20px 4px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 13px;
 }
-
-.modal-field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
+.modal-field { display: flex; flex-direction: column; gap: 5px; }
 .modal-label {
     font-size: 10px;
     font-weight: 700;
@@ -830,7 +912,8 @@ input:checked + .slider:before { transform: translateX(18px); }
     letter-spacing: 0.6px;
 }
 
-.modal-input {
+.modal-input,
+.modal-select {
     width: 100%;
     padding: 10px 12px;
     border: 1.5px solid #ece9e4;
@@ -845,16 +928,18 @@ input:checked + .slider:before { transform: translateX(18px); }
     appearance: none;
     box-sizing: border-box;
 }
-.modal-input:focus {
+.modal-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239c9289' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+}
+.modal-input:focus, .modal-select:focus {
     border-color: #f9e4a0;
     background: #ffffff;
 }
-
-.modal-input-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
+.modal-input-row { display: flex; gap: 8px; align-items: center; }
 .modal-input-row .modal-input { flex: 1; }
 
 .modal-copy-btn {
@@ -874,18 +959,30 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 .modal-copy-btn:active { background: #f9e4a0; color: #7a6a20; }
 
-.modal-textarea {
-    resize: vertical;
-    min-height: 70px;
-    line-height: 1.5;
-}
+.modal-textarea { resize: none; min-height: 60px; line-height: 1.5; }
 
+/* Live URL preview strip */
+.modal-track-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f5f9ff;
+    border: 1px solid #c8dcf8;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 10px;
+    color: #2a56c6;
+    word-break: break-all;
+    line-height: 1.4;
+}
+.modal-track-preview i { flex-shrink: 0; font-size: 11px; }
+
+/* Action row */
 .modal-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     padding: 14px 20px 0;
 }
-
 .modal-btn-secondary {
     flex: 1;
     padding: 12px;
@@ -901,8 +998,8 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 .modal-btn-secondary:active { background: #dbd6ce; }
 
-.modal-btn-primary {
-    flex: 2;
+.modal-btn-save {
+    flex: 1.5;
     padding: 12px;
     background: #2c2420;
     border: none;
@@ -910,24 +1007,30 @@ input:checked + .slider:before { transform: translateX(18px); }
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 700;
-    color: #ffffff;
+    color: #fff;
     cursor: pointer;
     transition: opacity 0.2s;
 }
-.modal-btn-primary:active { opacity: 0.8; }
+.modal-btn-save:active { opacity: 0.8; }
 
-/* ============================================================
-   VERSION TAG PILLS (POB / JP) — for era section headers
-   ============================================================ */
-.version-tag {
-    font-size: 8px;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
-    align-self: center;
+.modal-btn-track {
+    flex: 2;
+    padding: 12px;
+    background: #f9e4a0;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #7a6a20;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: opacity 0.2s;
 }
-.tag-pob   { background: #fde8e8; color: #b83535; }
-.tag-japan { background: #e8f0fe; color: #2a56c6; }
+.modal-btn-track:active { opacity: 0.8; }
+
+/* Nav — 5 items, tighter */
+.bottom-nav .nav-item span { font-size: 8.5px; }

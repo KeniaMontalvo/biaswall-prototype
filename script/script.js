@@ -17,6 +17,29 @@ if (!window.userReps) {
     window.userReps = JSON.parse(localStorage.getItem('userReps') || '{}');
 }
 
+// Tracking info: { [memberId]: { carrierId, trackingNumber, notes } }
+let trackingData = JSON.parse(localStorage.getItem('trackingData') || '{}');
+
+// ============================================================
+// CARRIERS — display name + tracking URL template
+// {n} is replaced with the tracking number
+// ============================================================
+const CARRIERS = [
+    { id: 'fedex',      label: 'FedEx',           url: 'https://www.fedex.com/fedextrack/?trknbr={n}' },
+    { id: 'dhl',        label: 'DHL',              url: 'https://www.dhl.com/us-en/home/tracking/tracking-express.html?submit=1&tracking-id={n}' },
+    { id: 'ups',        label: 'UPS',              url: 'https://www.ups.com/track?tracknum={n}' },
+    { id: 'usps',       label: 'USPS',             url: 'https://tools.usps.com/go/TrackConfirmAction?tLabels={n}' },
+    { id: 'correosmx',  label: 'Correos MX',       url: 'https://www.correosdemexico.gob.mx/SSLServicios/ConsultaCP/Rastreo.aspx?num={n}' },
+    { id: 'estafeta',   label: 'Estafeta',         url: 'https://www.estafeta.com/Herramientas/Rastreo?wayBillType=1&wayBill={n}' },
+    { id: 'paquetexpress', label: 'Paquete Express', url: 'https://www.paquetexpress.com.mx/rastreo/?guia={n}' },
+    { id: 'redpack',    label: 'Redpack',           url: 'https://www.redpack.com.mx/es/rastreo/?guias={n}' },
+    { id: 'gls',        label: 'GLS',              url: 'https://gls-group.com/track/{n}' },
+    { id: 'shopee',     label: 'Shopee',           url: 'https://shopee.com.mx/order' },
+    { id: 'weverse',    label: 'Weverse Shop',     url: 'https://shop.weverse.io/ko/orders' },
+    { id: 'ktown4u',    label: 'Ktown4u',          url: 'https://www.ktown4u.com/mypage/orderList' },
+    { id: 'other',      label: 'Other / Manual',   url: '' },
+];
+
 // ============================================================
 // LEAF SVG helper
 // ============================================================
@@ -79,8 +102,9 @@ function switchView(viewId) {
     const activeBtn = document.querySelector(`.nav-item[onclick*="${viewId}"]`);
     if (activeBtn) activeBtn.classList.add('active');
 
-    if (viewId === 'stats') updateStats();
-    if (viewId === 'trade') renderTradeView();
+    if (viewId === 'stats')    updateStats();
+    if (viewId === 'trade')    renderTradeView();
+    if (viewId === 'ontheway') renderOTWView();
 }
 
 // ============================================================
@@ -301,17 +325,10 @@ function buildPCWrapper(member, status, showTradeBadge = false) {
             <div class="pc-name">${member.name}</div>`;
     }
 
-    // ── Scroll-safe tap (movement threshold) ──
-    // If the finger moves more than THRESHOLD px between touchstart and touchend,
-    // we treat it as a scroll and skip the tap action.
-    const THRESHOLD = 8;
-    let startX = 0, startY = 0;
-    let timer = null, isLongPress = false;
+    // ── Interactions ──
+    let timer, isLongPress = false;
 
-    const onTouchStart = (e) => {
-        const t = e.touches[0];
-        startX = t.clientX;
-        startY = t.clientY;
+    const startPress = () => {
         isLongPress = false;
         timer = setTimeout(() => {
             isLongPress = true;
@@ -320,74 +337,31 @@ function buildPCWrapper(member, status, showTradeBadge = false) {
         }, 800);
     };
 
-    const onTouchMove = () => { clearTimeout(timer); };
-
-    const onTouchEnd = (e) => {
+    const handleRelease = (e) => {
         clearTimeout(timer);
-        if (isLongPress) { setTimeout(() => { isLongPress = false; }, 100); return; }
-        const t  = e.changedTouches[0];
-        const dx = Math.abs(t.clientX - startX);
-        const dy = Math.abs(t.clientY - startY);
-        if (dx > THRESHOLD || dy > THRESHOLD) return; // was a scroll, not a tap
         if (e.cancelable) e.preventDefault();
+        if (isLongPress) { setTimeout(() => { isLongPress = false; }, 100); return; }
         handleTap(member.id);
     };
 
-    // Mouse (desktop)
-    pc.addEventListener('mousedown',  (e) => {
-        if (e.detail > 0) {
-            startX = e.clientX; startY = e.clientY;
-            isLongPress = false;
-            timer = setTimeout(() => { isLongPress = true; resetCard(member.id); }, 800);
-        }
-    });
-    pc.addEventListener('mouseup', (e) => {
-        clearTimeout(timer);
-        if (isLongPress) { setTimeout(() => { isLongPress = false; }, 100); return; }
-        if (Math.abs(e.clientX - startX) > THRESHOLD || Math.abs(e.clientY - startY) > THRESHOLD) return;
-        handleTap(member.id);
-    });
-    pc.addEventListener('mouseleave', () => clearTimeout(timer));
-
-    // Touch (mobile)
-    pc.addEventListener('touchstart', onTouchStart, { passive: true });
-    pc.addEventListener('touchmove',  onTouchMove,  { passive: true });
-    pc.addEventListener('touchend',   onTouchEnd,   { passive: false });
+    pc.addEventListener('mousedown',  (e) => { if (e.detail > 0) startPress(); });
+    pc.addEventListener('mouseup',    (e) => { if (e.detail > 0) handleRelease(e); });
+    pc.addEventListener('mouseleave', ()  => clearTimeout(timer));
+    pc.addEventListener('touchstart', startPress,    { passive: false });
+    pc.addEventListener('touchend',   handleRelease, { passive: false });
 
     wrapper.appendChild(pc);
 
-    // ── Leaf badge — appended to wrapper (outside overflow:hidden) ──
+    // ── Leaf badge ──
+    // Modificado para que incluya el status 4 (Trade)
+    // Mostramos la hoja si:
+    // status 2 (Wishlist/Priority), status 3 (On the Way) O status 4 (Trade)
     const shouldShowLeaf = (status === 2 || status === 3 || status === 4);
-    const badge = buildLeafBadge(status, shouldShowLeaf);
+    
+    const badge = buildLeafBadge(status, shouldShowLeaf); 
     if (badge) wrapper.appendChild(badge);
 
-    // ── OTW truck button — also on wrapper, NOT inside pc ──
-    // Being a sibling of .photocard means it is completely outside the card's
-    // event listeners, so it will never accidentally trigger handleTap.
-    if (status === 3) {
-        const otwBtn = buildOTWButton(member.id, member.name);
-        wrapper.appendChild(otwBtn);
-    }
-
     return wrapper;
-}
-
-// Builds the truck button as a positioned element on the wrapper
-function buildOTWButton(memberId, memberName) {
-    const btn = document.createElement('button');
-    btn.className   = 'otw-info-btn';
-    btn.title       = 'Add tracking info';
-    btn.innerHTML   = `<i class="fa-solid fa-truck-fast"></i>`;
-    btn.setAttribute('data-member-id',   memberId);
-    btn.setAttribute('data-member-name', memberName);
-
-    // Use 'click' — works on both mouse and touch without any conflict
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation(); // belt-and-suspenders: prevent any bubble to wrapper
-        openTrackingModal(memberId, memberName);
-    });
-
-    return btn;
 }
 
 function buildLeafBadge(status, showTradeBadge) {
@@ -397,24 +371,11 @@ function buildLeafBadge(status, showTradeBadge) {
     if (status === 3) color = LEAF_COLORS[3]; // On the Way — always show
     if (status === 4) color = LEAF_COLORS[4]; // Trade — always show
 
-    // In the main collection view, only show the on the way badge if it's status 3 and we're in the On the Way view
-    if (status === 3) {
-        color = LEAF_COLORS[3]; 
-    } else if (status === 4 && showTradeBadge) {
-        color = LEAF_COLORS[4];
-    }
-
     if (!color) return null;
 
     const badge = document.createElement('div');
     badge.className = 'leaf-badge-overlay';
-
-    if (status === 3) {
     badge.innerHTML = makeLeafSVG(color);
-    } else {
-        badge.innerHTML = makeLeafSVG(color);
-    }
-    
     return badge;
 }
 
@@ -426,27 +387,16 @@ function updateSingleCardUI(memberId, newStatus) {
     const wrapper = document.getElementById(`wrapper-${memberId}`);
     if (!pc || !wrapper) { renderCollection(); return; }
 
-    // 1. Update card status class
+    // Update class
     pc.className = `photocard status-${newStatus}`;
 
-    // 2. Rebuild leaf badge on wrapper
-    const oldBadge = wrapper.querySelector('.leaf-badge-overlay');
-    if (oldBadge) oldBadge.remove();
-    const shouldShowLeaf = (newStatus === 2 || newStatus === 3 || newStatus === 4);
-    const fresh = buildLeafBadge(newStatus, shouldShowLeaf);
+    // Rebuild leaf badge
+    const old = wrapper.querySelector('.leaf-badge-overlay');
+    if (old) old.remove();
+    const fresh = buildLeafBadge(newStatus, false); // collection context
     if (fresh) wrapper.appendChild(fresh);
 
-    // 3. Rebuild OTW button on wrapper (show only when status 3)
-    const oldOtw = wrapper.querySelector('.otw-info-btn');
-    if (oldOtw) oldOtw.remove();
-    if (newStatus === 3) {
-        // Recover member name from the pc-name label inside the card
-        const memberName = pc.querySelector('.pc-name')?.textContent?.trim() || '';
-        const otwBtn = buildOTWButton(memberId, memberName);
-        wrapper.appendChild(otwBtn);
-    }
-
-    // 4. Update era counter
+    // Update era counter
     updateEraCounter(wrapper);
 }
 
@@ -533,6 +483,269 @@ function updateStats() {
 
     const sub = $('stats-subtitle');
     if (sub) sub.innerText = `${currentArtist.toUpperCase()} · All versions`;
+}
+
+// ============================================================
+// ON THE WAY VIEW
+// ============================================================
+function renderOTWView() {
+    const list = document.getElementById('otw-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    const albums = groupsData[currentArtist] || [];
+    let hasOTW   = false;
+
+    albums.forEach(album => {
+        album.versions.forEach(version => {
+            version.members.forEach(member => {
+                if ((userProgress[member.id] || 0) !== 3) return;
+                hasOTW = true;
+
+                const saved   = trackingData[member.id] || {};
+                const carrier = CARRIERS.find(c => c.id === saved.carrierId) || null;
+                const hasInfo = saved.carrierId || saved.trackingNumber;
+
+                const card = document.createElement('div');
+                card.className = 'otw-card';
+                card.id        = `otw-card-${member.id}`;
+
+                const hasImg = member.img && member.img !== 'URL_AQUÍ';
+                const imgSrc = hasImg
+                    ? member.img
+                    : `https://placehold.co/80x120/fffde8/9c9289?text=${encodeURIComponent(member.name)}`;
+
+                // Build status line
+                let statusLine = `<span class="otw-no-info">No tracking info yet — tap to add</span>`;
+                if (hasInfo) {
+                    const carrierLabel = carrier ? carrier.label : (saved.carrierId || 'Unknown');
+                    statusLine = `
+                        <span class="otw-carrier-label">${carrierLabel}</span>
+                        ${saved.trackingNumber
+                            ? `<span class="otw-tracking-num">${saved.trackingNumber}</span>`
+                            : '<span class="otw-no-info">No tracking number</span>'}
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="otw-card-img-wrap">
+                        <img src="${imgSrc}" class="otw-card-img"
+                             onerror="this.onerror=null;this.src='https://placehold.co/80x120/fffde8/9c9289?text=${encodeURIComponent(member.name)}';">
+                        <span class="otw-leaf-chip">${makeLeafSVG('#F9E4A0')}</span>
+                    </div>
+                    <div class="otw-card-info">
+                        <div class="otw-card-top">
+                            <span class="otw-member-name">${member.name}</span>
+                            <span class="otw-album-name">${album.album} — ${version.subname}</span>
+                        </div>
+                        <div class="otw-status-line">${statusLine}</div>
+                        ${saved.notes ? `<div class="otw-notes">${saved.notes}</div>` : ''}
+                    </div>
+                    <div class="otw-card-actions">
+                        <button class="otw-edit-btn" onclick="openTrackingModal('${member.id}','${member.name.replace(/'/g,"\\'")}','${album.album.replace(/'/g,"\\'")} — ${version.subname.replace(/'/g,"\\'")}')">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        ${(hasInfo && saved.trackingNumber && carrier && carrier.url)
+                            ? `<button class="otw-track-btn" onclick="openTrackingURL('${member.id}')">
+                                   <i class="fa-solid fa-arrow-up-right-from-square"></i> Track
+                               </button>`
+                            : ''}
+                    </div>
+                `;
+
+                list.appendChild(card);
+            });
+        });
+    });
+
+    if (!hasOTW) {
+        list.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📦</div>
+                <p>No photocards marked as On the Way yet.</p>
+                <p style="font-size:11px;margin-top:6px;">Tap any card in your collection and cycle it to the yellow leaf status.</p>
+            </div>`;
+    }
+}
+
+// Open the carrier's tracking page with the number pre-filled
+function openTrackingURL(memberId) {
+    const saved   = trackingData[memberId];
+    if (!saved?.carrierId || !saved?.trackingNumber) {
+        showToast('Add a carrier and tracking number first.');
+        return;
+    }
+    const carrier = CARRIERS.find(c => c.id === saved.carrierId);
+    if (!carrier || !carrier.url) {
+        showToast('No tracking URL for this carrier. Open their website manually.');
+        return;
+    }
+    const url = carrier.url.replace('{n}', encodeURIComponent(saved.trackingNumber));
+    window.open(url, '_blank', 'noopener');
+}
+
+// ============================================================
+// TRACKING MODAL
+// ============================================================
+function openTrackingModal(memberId, memberName, albumLabel) {
+    const existing = document.getElementById('tracking-modal');
+    if (existing) existing.remove();
+
+    const saved = trackingData[memberId] || { carrierId: '', trackingNumber: '', notes: '' };
+
+    // Build carrier options
+    const carrierOptions = CARRIERS.map(c =>
+        `<option value="${c.id}" ${saved.carrierId === c.id ? 'selected' : ''}>${c.label}</option>`
+    ).join('');
+
+    const LEAF_SVG_INLINE = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;display:block;"><path d="${LEAF_SVG_PATH}" fill="#F9E4A0"/></svg>`;
+
+    const modal = document.createElement('div');
+    modal.id        = 'tracking-modal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+
+            <div class="modal-header">
+                <div class="modal-title-block">
+                    <span class="modal-leaf-icon">${LEAF_SVG_INLINE}</span>
+                    <div>
+                        <h3 class="modal-title">${memberName}</h3>
+                        <p class="modal-subtitle">${albumLabel || 'On the Way'}</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeTrackingModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="modal-field">
+                    <label class="modal-label">Carrier / Shop</label>
+                    <select id="track-carrier" class="modal-input modal-select">
+                        <option value="">— Select carrier —</option>
+                        ${carrierOptions}
+                    </select>
+                </div>
+
+                <div class="modal-field">
+                    <label class="modal-label">Tracking Number</label>
+                    <div class="modal-input-row">
+                        <input id="track-number" class="modal-input" type="text"
+                               placeholder="e.g. 7489 4355 0246 0"
+                               value="${saved.trackingNumber}"
+                               autocomplete="off" spellcheck="false">
+                        <button class="modal-copy-btn" onclick="copyTrackingNumber()" title="Copy">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal-field">
+                    <label class="modal-label">Notes</label>
+                    <textarea id="track-notes" class="modal-input modal-textarea"
+                              placeholder="e.g. Estimated arrival April 10 · from Ktown4u"
+                              rows="2">${saved.notes || ''}</textarea>
+                </div>
+
+                <!-- Live preview of the tracking URL -->
+                <div class="modal-track-preview" id="track-preview" style="display:none;">
+                    <i class="fa-solid fa-link"></i>
+                    <span id="track-preview-text"></span>
+                </div>
+
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn-secondary" onclick="closeTrackingModal()">Cancel</button>
+                <button class="modal-btn-save" onclick="saveTracking('${memberId}')">Save</button>
+                <button class="modal-btn-track" id="modal-track-btn"
+                        onclick="saveAndTrack('${memberId}')"
+                        style="display:none;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Track
+                </button>
+            </div>
+        </div>
+    `;
+
+    modal.addEventListener('click', ev => { if (ev.target === modal) closeTrackingModal(); });
+    document.body.appendChild(modal);
+    requestAnimationFrame(() => modal.classList.add('modal-open'));
+
+    // Wire up live URL preview
+    const carrierSel = modal.querySelector('#track-carrier');
+    const numInput   = modal.querySelector('#track-number');
+    const updatePreview = () => {
+        const cid = carrierSel.value;
+        const num = numInput.value.trim();
+        const carrier = CARRIERS.find(c => c.id === cid);
+        const trackBtn    = document.getElementById('modal-track-btn');
+        const previewBox  = document.getElementById('track-preview');
+        const previewText = document.getElementById('track-preview-text');
+
+        if (carrier && carrier.url && num) {
+            const url = carrier.url.replace('{n}', num);
+            previewText.textContent = url.length > 55 ? url.slice(0, 55) + '…' : url;
+            previewBox.style.display = 'flex';
+            if (trackBtn) trackBtn.style.display = 'flex';
+        } else {
+            previewBox.style.display = 'none';
+            if (trackBtn) trackBtn.style.display = 'none';
+        }
+    };
+
+    carrierSel.addEventListener('change', updatePreview);
+    numInput.addEventListener('input',    updatePreview);
+    updatePreview(); // run once on open if data already exists
+}
+
+function closeTrackingModal() {
+    const modal = document.getElementById('tracking-modal');
+    if (!modal) return;
+    modal.classList.remove('modal-open');
+    setTimeout(() => modal.remove(), 280);
+}
+
+function saveTracking(memberId) {
+    const carrierId      = document.getElementById('track-carrier')?.value  || '';
+    const trackingNumber = document.getElementById('track-number')?.value.trim()  || '';
+    const notes          = document.getElementById('track-notes')?.value.trim()   || '';
+
+    trackingData[memberId] = { carrierId, trackingNumber, notes };
+    localStorage.setItem('trackingData', JSON.stringify(trackingData));
+    closeTrackingModal();
+    showToast('Tracking info saved 🌿');
+    renderOTWView(); // refresh the OTW list
+}
+
+function saveAndTrack(memberId) {
+    // Save first, then open the tracking URL
+    const carrierId      = document.getElementById('track-carrier')?.value  || '';
+    const trackingNumber = document.getElementById('track-number')?.value.trim()  || '';
+    const notes          = document.getElementById('track-notes')?.value.trim()   || '';
+
+    trackingData[memberId] = { carrierId, trackingNumber, notes };
+    localStorage.setItem('trackingData', JSON.stringify(trackingData));
+    closeTrackingModal();
+    renderOTWView();
+
+    const carrier = CARRIERS.find(c => c.id === carrierId);
+    if (carrier && carrier.url && trackingNumber) {
+        const url = carrier.url.replace('{n}', encodeURIComponent(trackingNumber));
+        window.open(url, '_blank', 'noopener');
+    } else {
+        showToast('Tracking info saved 🌿');
+    }
+}
+
+function copyTrackingNumber() {
+    const val = (document.getElementById('track-number')?.value || '').trim();
+    if (!val) { showToast('No tracking number to copy.'); return; }
+    navigator.clipboard.writeText(val)
+        .then(() => showToast('Tracking number copied!'))
+        .catch(() => showToast('Could not copy.'));
 }
 
 // ============================================================
@@ -666,107 +879,6 @@ function resetAllData() {
     renderCollection();
     updateStats();
     showToast('All data reset.');
-}
-
-// ============================================================
-// OTW TRACKING MODAL
-// ============================================================
-// Tracking data store
-let trackingData = JSON.parse(localStorage.getItem('trackingData') || '{}');
-
-function openTrackingModal(memberId, memberName) {
-    const existing = document.getElementById('tracking-modal');
-    if (existing) existing.remove();
-
-    const saved = trackingData[memberId] || { carrier: '', trackingNumber: '', notes: '' };
-
-    const LEAF_SVG = `<svg viewBox="0 0 24 24" style="width:16px;height:16px;display:block"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z" fill="#F9E4A0"/></svg>`;
-
-    const modal = document.createElement('div');
-    modal.id        = 'tracking-modal';
-    modal.className = 'modal-overlay';
-    modal.innerHTML = `
-        <div class="modal-sheet">
-            <div class="modal-handle"></div>
-            <div class="modal-header">
-                <div class="modal-title-block">
-                    <span class="modal-leaf-icon">${LEAF_SVG}</span>
-                    <div>
-                        <h3 class="modal-title">On the Way</h3>
-                        <p class="modal-subtitle">${memberName}</p>
-                    </div>
-                </div>
-                <button class="modal-close" onclick="closeTrackingModal()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <div class="modal-field">
-                    <label class="modal-label">Carrier / Shop</label>
-                    <input id="track-carrier" class="modal-input" type="text"
-                           placeholder="e.g. Shopee, eBay, Weverse Shop…"
-                           value="${saved.carrier}">
-                </div>
-                <div class="modal-field">
-                    <label class="modal-label">Tracking Number</label>
-                    <div class="modal-input-row">
-                        <input id="track-number" class="modal-input" type="text"
-                               placeholder="e.g. 1Z999AA10123456784"
-                               value="${saved.trackingNumber}">
-                        <button class="modal-copy-btn" onclick="copyTrackingNumber()" title="Copy">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="modal-field">
-                    <label class="modal-label">Notes</label>
-                    <textarea id="track-notes" class="modal-input modal-textarea"
-                              placeholder="e.g. Bought at Seúl Market · Estimated arrival: April 10"
-                              rows="3">${saved.notes}</textarea>
-                </div>
-            </div>
-
-            <div class="modal-actions">
-                <button class="modal-btn-secondary" onclick="closeTrackingModal()">Cancel</button>
-                <button class="modal-btn-primary" onclick="saveTracking('${memberId}')">Save</button>
-            </div>
-        </div>
-    `;
-
-    modal.addEventListener('click', (ev) => {
-        if (ev.target === modal) closeTrackingModal();
-    });
-
-    document.body.appendChild(modal);
-    // Trigger animation on next frame
-    requestAnimationFrame(() => modal.classList.add('modal-open'));
-}
-
-function closeTrackingModal() {
-    const modal = document.getElementById('tracking-modal');
-    if (!modal) return;
-    modal.classList.remove('modal-open');
-    setTimeout(() => modal.remove(), 280);
-}
-
-function saveTracking(memberId) {
-    trackingData[memberId] = {
-        carrier:        (document.getElementById('track-carrier')?.value  || '').trim(),
-        trackingNumber: (document.getElementById('track-number')?.value   || '').trim(),
-        notes:          (document.getElementById('track-notes')?.value    || '').trim(),
-    };
-    localStorage.setItem('trackingData', JSON.stringify(trackingData));
-    closeTrackingModal();
-    showToast('Tracking info saved 🌿');
-}
-
-function copyTrackingNumber() {
-    const val = (document.getElementById('track-number')?.value || '').trim();
-    if (!val) { showToast('No tracking number to copy.'); return; }
-    navigator.clipboard.writeText(val)
-        .then(() => showToast('Tracking number copied!'))
-        .catch(() => showToast('Could not copy.'));
 }
 
 // ============================================================
