@@ -266,6 +266,45 @@ body  {
 }
 
 /* ============================================================
+   FLOATING EDIT BUTTON
+   ============================================================ */
+.floating-edit-btn {
+    position: fixed;
+    bottom: calc(125px + env(safe-area-inset-bottom));
+    left: calc(50% + 215px - 60px);
+    z-index: 999; /* Por encima de casi todo para asegurar el click */
+    
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    background: var(--text-main);
+    color: var(--white);
+    border: none;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estado cuando la edición está ACTIVADA y el candado abierto */
+.floating-edit-btn.editing-active {
+    background: var(--sage); /* Verde sage orgánico */
+    color: var(--text-main);
+    transform: rotate(360deg);
+}
+
+.floating-edit-btn i {
+    font-size: 15px;
+}
+
+.floating-edit-btn:active {
+    transform: scale(0.92);
+}
+
+/* ============================================================
    HINT STRIP
    ============================================================ */
 .hint-strip {
@@ -1047,3 +1086,12 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 /* Nav — 5 items, tighter */
 .bottom-nav .nav-item span { font-size: 8.5px; }
+
+/* botón flotante */
+@media (max-width: 430px) {
+    .floating-edit-btn {
+        left: auto;
+        right: 16px;
+        bottom: calc(125px + env(safe-area-inset-bottom));
+    }
+}

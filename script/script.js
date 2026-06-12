@@ -12,6 +12,7 @@ let userProgress    = JSON.parse(localStorage.getItem('userProgress') || '{}');
 let selectedMembers = new Set(['todos']);
 let quantityFilter  = 'all';
 let searchQuery     = '';
+let isEditModeActive = false; // Por defecto empieza en Modo Lectura (Bloqueado)
 
 if (!window.userReps) {
     window.userReps = JSON.parse(localStorage.getItem('userReps') || '{}');
@@ -96,6 +97,12 @@ function switchView(viewId) {
     if (filterBar) filterBar.style.display = isCol ? '' : 'none';
     if (legend)    legend.style.display    = isCol ? 'flex' : 'none';
 
+    // 🚩 CONTROL DE VISIBILIDAD DEL BOTÓN FLOTANTE
+    const editBtn = document.getElementById('floating-edit-btn');
+    if (editBtn) {
+        editBtn.style.display = isCol ? 'flex' : 'none';
+    }
+
     // Active nav
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     const activeBtn = document.querySelector(`.nav-item[onclick*="${viewId}"]`);
@@ -109,6 +116,7 @@ function switchView(viewId) {
 // ============================================================
 // HINT STRIP
 // ============================================================
+
 function dismissHint() {
     const hint = document.getElementById('hint-strip');
     if (hint) { hint.style.display = 'none'; localStorage.setItem('hint_dismissed', '1'); }
@@ -417,11 +425,37 @@ function updateEraCounter(wrapper) {
 }
 
 // ============================================================
+// FUNCIÓN CONTROLADORA READ ONLY
+// ============================================================
+
+function toggleEditMode() {
+    isEditModeActive = !isEditModeActive;
+    
+    const btn = document.getElementById('floating-edit-btn');
+    if (!btn) return;
+    
+    if (isEditModeActive) {
+        btn.classList.add('editing-active');
+        btn.innerHTML = `<i class="fa-solid fa-lock-open"></i>`;
+        showToast('Modo Edición activado: ya puedes cambiar estados 🌿');
+    } else {
+        btn.classList.remove('editing-active');
+        btn.innerHTML = `<i class="fa-solid fa-lock"></i>`;
+        showToast('Modo Lectura: scroll seguro activado 🔒');
+    }
+}
+
+// ============================================================
 // TAP / RESET
 // ============================================================
 function handleTap(memberId) {
+    // 🚩 CONTROL DE INGENIERÍA DE TOUCH
+    if (!isEditModeActive) {
+        // Si no está en modo edición, ignoramos el tap por completo
+        return; 
+    }
+
     const cur  = userProgress[memberId] || 0;
-    // Cycle: 0 → 1 (Have) → 2 (Wishlist) → 3 (On the Way) → 4 (Trade) → 0
     const next = (cur + 1) % 5;
     userProgress[memberId] = next;
     localStorage.setItem('userProgress', JSON.stringify(userProgress));
@@ -430,6 +464,11 @@ function handleTap(memberId) {
 }
 
 function resetCard(id) {
+    // 🚩 CONTROL DE INGENIERÍA DE TOUCH
+    if (!isEditModeActive) {
+        return; 
+    }
+
     userProgress[id] = 0;
     localStorage.setItem('userProgress', JSON.stringify(userProgress));
     updateSingleCardUI(id, 0);
