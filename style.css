@@ -129,7 +129,8 @@ body  {
    ============================================================ */
 .app-container {
     width: 100%; max-width: 430px;
-    height: 100dvh; height: 100vh;
+    height: 100dvh;
+    position: relative;
     background: var(--white);
     color: var(--text-main);
     display: flex; flex-direction: column;
@@ -292,8 +293,10 @@ body  {
    SCROLLABLE CONTENT
    ============================================================ */
 .app-content {
-    flex: 1; overflow-y: auto; overflow-x: hidden;
-    padding: 14px 18px 170px;
+    flex: 1; 
+    overflow-y: auto; 
+    overflow-x: hidden;
+    padding: 14px 18px calc(80px + env(safe-area-inset-bottom));
     -webkit-overflow-scrolling: touch;
 }
 .app-content::-webkit-scrollbar { display: none; }
@@ -399,7 +402,9 @@ body  {
    ============================================================ */
 .footer-legend {
     position: absolute;
-    bottom: 62px; left: 50%; transform: translateX(-50%);
+    bottom: calc(65px + env(safe-area-inset-bottom));
+    left: 50%; 
+    transform: translateX(-50%);
     width: calc(100% - 32px); max-width: 400px;
     display: flex; justify-content: space-around; align-items: center;
     background: rgba(255,255,255,.94);
@@ -441,7 +446,14 @@ body  {
    BOTTOM NAV
    ============================================================ */
 .bottom-nav {
-    display: flex; justify-content: space-around; align-items: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center;
     background: var(--white);
     border-top: 1px solid var(--border);
     padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
